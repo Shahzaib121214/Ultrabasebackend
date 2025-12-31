@@ -196,6 +196,125 @@ $action = $_REQUEST['action'] ?? $input['action'] ?? '';
 $key = $_REQUEST['key'] ?? $input['key'] ?? '';
 $pid = isset($_REQUEST['pid']) ? intval($_REQUEST['pid']) : (isset($input['pid']) ? intval($input['pid']) : 0);
 
+// Allow setup actions without full key check
+if ($action === 'check_tables') {
+    try {
+        $result = $conn->query("SHOW TABLES LIKE 'users'");
+        echo json_encode([
+            "status" => "success",
+            "tables_exist" => ($result && $result->num_rows > 0)
+        ]);
+    } catch (Exception $e) {
+        echo json_encode(["status" => "error", "tables_exist" => false, "message" => $e->getMessage()]);
+    }
+    exit;
+}
+
+if ($action === 'setup_tables') {
+    try {
+        $tables = [];
+        
+        $conn->query("CREATE TABLE IF NOT EXISTS `users` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `username` VARCHAR(50) NOT NULL UNIQUE,
+            `email` VARCHAR(100) NOT NULL UNIQUE,
+            `password` VARCHAR(255) NOT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $tables[] = 'users';
+        
+        $conn->query("CREATE TABLE IF NOT EXISTS `projects` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `name` VARCHAR(100) NOT NULL,
+            `api_key` VARCHAR(64) NOT NULL,
+            `user_id` INT DEFAULT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX (`user_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $tables[] = 'projects';
+        
+        $conn->query("CREATE TABLE IF NOT EXISTS `universal_data` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `project_id` INT DEFAULT 0,
+            `collection` VARCHAR(100) NOT NULL,
+            `json_data` LONGTEXT NOT NULL,
+            `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            INDEX (`project_id`, `collection`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $tables[] = 'universal_data';
+        
+        $conn->query("CREATE TABLE IF NOT EXISTS `analytics` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `project_id` INT DEFAULT 0,
+            `date` DATE NOT NULL,
+            `reads` INT DEFAULT 0,
+            `writes` INT DEFAULT 0,
+            UNIQUE KEY `unique_project_date` (`project_id`, `date`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $tables[] = 'analytics';
+        
+        $conn->query("CREATE TABLE IF NOT EXISTS `api_keys` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `project_id` INT NOT NULL,
+            `key_name` VARCHAR(100) NOT NULL,
+            `api_key` VARCHAR(64) NOT NULL,
+            `permissions` TEXT,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX (`project_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $tables[] = 'api_keys';
+        
+        $conn->query("CREATE TABLE IF NOT EXISTS `activity_logs` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `project_id` INT NOT NULL,
+            `action` VARCHAR(50) NOT NULL,
+            `collection` VARCHAR(100),
+            `details` TEXT,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX (`project_id`, `created_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $tables[] = 'activity_logs';
+        
+        $conn->query("CREATE TABLE IF NOT EXISTS `backups` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `project_id` INT NOT NULL,
+            `backup_name` VARCHAR(100) NOT NULL,
+            `backup_data` LONGTEXT NOT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX (`project_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $tables[] = 'backups';
+        
+        $conn->query("CREATE TABLE IF NOT EXISTS `webhooks` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `project_id` INT NOT NULL,
+            `url` VARCHAR(255) NOT NULL,
+            `events` TEXT,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX (`project_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $tables[] = 'webhooks';
+        
+        $conn->query("CREATE TABLE IF NOT EXISTS `security_rules` (
+            `id` INT AUTO_INCREMENT PRIMARY KEY,
+            `project_id` INT NOT NULL,
+            `collection` VARCHAR(100) NOT NULL,
+            `rules` TEXT NOT NULL,
+            `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            INDEX (`project_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        $tables[] = 'security_rules';
+        
+        echo json_encode([
+            "status" => "success",
+            "message" => "Successfully created " . count($tables) . " tables: " . implode(", ", $tables)
+        ]);
+    } catch (Exception $e) {
+        echo json_encode(["status" => "error", "message" => "Setup failed: " . $e->getMessage()]);
+    }
+    exit;
+}
+
 if ($key !== "maxclube_secret") jsonError("Invalid Secret Key");
 
 // --- API ACTIONS ---
