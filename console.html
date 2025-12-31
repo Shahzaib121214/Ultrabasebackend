@@ -1,0 +1,2262 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="monetization" content="none">
+    <title>UltraBase Ultimate</title>
+    <!-- Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <!-- Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --primary-light: rgba(79, 70, 229, 0.1);
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --text: #1e293b;
+            --text-sec: #64748b;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --border: #e2e8f0;
+            --sidebar-w: 280px;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --glass: rgba(255, 255, 255, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        [data-theme="dark"] {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --primary-light: rgba(129, 140, 248, 0.15);
+            --text: #f1f5f9;
+            --text-sec: #94a3b8;
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+            --glass: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes widthGrow {
+            from {
+                width: 0;
+            }
+        }
+
+        /* --- HEADER --- */
+        .header {
+            height: 64px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            z-index: 20;
+            box-shadow: var(--shadow);
+        }
+
+        .brand {
+            font-weight: 800;
+            font-size: 22px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand span.highlight {
+            color: var(--primary);
+        }
+
+        .brand-icon {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px var(--primary-light);
+        }
+
+        .header-tools {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .status-pill {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            transition: 0.3s;
+        }
+
+        .status-pill.saving {
+            border-color: var(--warning);
+            color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+
+        .status-pill.saved {
+            border-color: var(--success);
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .status-pill.error {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-sec);
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+        }
+
+        .icon-btn:hover {
+            background: var(--bg);
+            color: var(--primary);
+            border-color: var(--border);
+            transform: translateY(-1px);
+        }
+
+        /* --- LAYOUT --- */
+        .workspace {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            width: var(--sidebar-w);
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            z-index: 15;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-tabs {
+            display: flex;
+            padding: 16px;
+            gap: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            color: var(--text-sec);
+            transition: 0.2s;
+            background: transparent;
+        }
+
+        .nav-tab:hover {
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .nav-tab.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .coll-list {
+            list-style: none;
+            padding: 16px;
+            margin: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .coll-item {
+            padding: 14px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-sec);
+            margin-bottom: 6px;
+            transition: 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .coll-item:hover {
+            background: var(--bg);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .coll-item.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px var(--primary-light);
+            border-color: transparent;
+        }
+
+        .analytics-panel {
+            padding: 20px;
+            display: none;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .stat-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.4s ease-out;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-sec);
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-val {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text);
+            letter-spacing: -1px;
+        }
+
+        /* STORAGE BARS */
+        .dist-bar-container {
+            margin-top: 15px;
+        }
+
+        .dist-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: var(--text-sec);
+        }
+
+        .dist-label {
+            width: 60px;
+            font-weight: 600;
+        }
+
+        .dist-track {
+            flex: 1;
+            height: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0 12px;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .dist-fill {
+            height: 100%;
+            border-radius: 4px;
+            animation: widthGrow 1s ease-out;
+        }
+
+        .dist-count {
+            font-weight: bold;
+            color: var(--text);
+            width: 30px;
+            text-align: right;
+        }
+
+        /* MAIN AREA */
+        .main {
+            flex: 1;
+            background: var(--bg);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .toolbar {
+            padding: 0 24px;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 64px;
+            gap: 16px;
+        }
+
+        .path-bar {
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 6px 12px;
+            background: var(--bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .action-group {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .btn-tool {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-sec);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+        }
+
+        .btn-tool:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            box-shadow: 0 2px 4px var(--primary-light);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--primary-light);
+            color: white;
+        }
+
+        /* EDITOR */
+        .editor {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 14px;
+        }
+
+        .node {
+            margin-left: 24px;
+            padding-left: 12px;
+            line-height: 36px;
+            border-left: 1px solid var(--border);
+            position: relative;
+        }
+
+        /* Dot for tree connection */
+        .node::before {
+            content: '';
+            position: absolute;
+            left: -1px;
+            top: 18px;
+            width: 6px;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .row {
+            display: flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            transition: 0.15s;
+            background: var(--card);
+            margin-bottom: 4px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .row:hover {
+            background: var(--bg);
+            border-color: var(--border);
+            transform: translateX(2px);
+        }
+
+        .key {
+            font-weight: 600;
+            color: var(--text);
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .val {
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: text;
+            transition: 0.2s;
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .val:focus {
+            background: var(--card);
+            outline: 2px solid var(--primary);
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .val-str {
+            color: #10b981;
+        }
+
+        .val-num {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+
+        .val-bool {
+            color: #f59e0b;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        [data-theme="dark"] .val-str {
+            color: #34d399;
+        }
+
+        [data-theme="dark"] .val-num {
+            color: #60a5fa;
+        }
+
+        .type-badge {
+            font-size: 10px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-right: 8px;
+            opacity: 0.8;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .bg-str {
+            background: rgba(16, 185, 129, 0.15);
+            color: #10b981;
+        }
+
+        .bg-num {
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+        }
+
+        .bg-bool {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+        }
+
+        .bg-obj {
+            background: rgba(100, 116, 139, 0.15);
+            color: #64748b;
+        }
+
+        .actions {
+            opacity: 0;
+            margin-left: auto;
+            display: flex;
+            gap: 6px;
+            transition: 0.2s;
+        }
+
+        .row:hover .actions {
+            opacity: 1;
+        }
+
+        .mini-btn {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-sec);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .mini-btn:hover {
+            background: var(--bg);
+            border-color: var(--border);
+            color: var(--text);
+        }
+
+        .mini-btn.del:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border-color: transparent;
+        }
+
+        /* TOGGLE SWITCH */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        input:checked+.slider {
+            background-color: var(--success);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        /* MODALS */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.2s;
+        }
+
+        .modal {
+            background: var(--card);
+            width: 440px;
+            max-width: 90%;
+            border-radius: 20px;
+            padding: 28px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--border);
+            transform: scale(0.95);
+            animation: fadeIn 0.3s forwards;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-sec);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-size: 15px;
+            transition: 0.2s;
+            font-family: var(--font-mono);
+        }
+
+        .input-field:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+            background: var(--card);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        /* TOASTS */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--card);
+            color: var(--text);
+            padding: 16px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid var(--border);
+            pointer-events: auto;
+            animation: fadeIn 0.3s;
+        }
+
+        /* FOOTER */
+        .footer {
+            padding: 10px 24px;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-sec);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                left: -100%;
+                height: 100%;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+                width: 85%;
+            }
+
+            .sidebar.open {
+                left: 0;
+            }
+
+            .desktop-only {
+                display: none;
+            }
+        }
+
+        /* COLLAPSIBLE TREE */
+        .tree-toggle {
+            cursor: pointer;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            border-radius: 4px;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            transition: 0.2s;
+            font-size: 14px;
+            color: var(--text-sec);
+        }
+
+        .tree-toggle:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .tree-toggle.collapsed::before {
+            content: '▶';
+        }
+
+        .tree-toggle.expanded::before {
+            content: '▼';
+        }
+
+        .tree-children {
+            overflow: hidden;
+            transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+        }
+
+        .tree-children.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+        }
+
+        .tree-children.expanded {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+
+    <!-- OVERLAYS -->
+    <div class="modal-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <div id="toast-container"></div>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div style="display:flex; align-items:center; gap:15px;">
+            <a href="index.html" class="back-btn"><span class="material-icons-round">arrow_back</span> Apps</a>
+            <div class="brand">
+                <div class="brand-icon"><span class="material-icons-round">dns</span></div>
+                <span id="appTitle"><span class="highlight">Loading</span>...</span>
+            </div>
+        </div>
+        <div class="header-tools">
+            <div class="status-pill" id="statusPill">
+                <span class="material-icons-round" style="font-size:14px;">check_circle</span>
+                <span id="statusText">Ready</span>
+            </div>
+            <a href="docs.html" class="icon-btn" title="Documentation" style="text-decoration:none; color:inherit;">
+                <span class="material-icons-round">description</span>
+            </a>
+            <button class="icon-btn" onclick="toggleTheme()" title="Theme"><span class="material-icons-round"
+                    id="themeIcon">dark_mode</span></button>
+            <button class="icon-btn" onclick="logoutConsole()" title="Logout"><span
+                    class="material-icons-round">logout</span></button>
+        </div>
+    </div>
+
+    <div class="workspace">
+        <!-- SIDEBAR -->
+        <div class="sidebar" id="sidebar">
+            <div class="nav-tabs">
+                <div class="nav-tab active" onclick="switchTab('db', this)">DATA</div>
+                <div class="nav-tab" onclick="switchTab('settings', this)">SETTINGS</div>
+            </div>
+
+            <!-- Sub-tabs for Settings -->
+            <div id="settings-subtabs"
+                style="display:none; padding:10px; border-bottom:1px solid var(--border); gap:6px; flex-wrap:wrap;">
+                <button class="btn-tool" style="font-size:11px; padding:6px 10px;"
+                    onclick="window.open('android.html?pid=' + PID, '_blank')">📱
+                    Android</button>
+                <button class="btn-tool" style="font-size:11px; padding:6px 10px;"
+                    onclick="window.open('web.html?pid=' + PID, '_blank')">🌐
+                    Web/JS</button>
+                <button class="btn-tool" style="font-size:11px; padding:6px 10px;" onclick="switchSubTab('apikeys')">🔑
+                    API Keys</button>
+                <button class="btn-tool" style="font-size:11px; padding:6px 10px;" onclick="switchSubTab('logs')">📊
+                    Logs</button>
+                <button class="btn-tool" style="font-size:11px; padding:6px 10px;" onclick="switchSubTab('backups')">💾
+                    Backups</button>
+                <button class="btn-tool" style="font-size:11px; padding:6px 10px;" onclick="switchSubTab('webhooks')">🪝
+                    Webhooks</button>
+                <button class="btn-tool" style="font-size:11px; padding:6px 10px;" onclick="switchSubTab('search')">🔍
+                    Search</button>
+                <button class="btn-tool" style="font-size:11px; padding:6px 10px;"
+                    onclick="window.open('docs.html', '_blank')">📚 Docs</button>
+            </div>
+
+            <!-- DATABASE TAB -->
+            <div id="tab-db" style="display:flex; flex-direction:column; flex:1; overflow:hidden;">
+                <div style="padding:15px 10px;">
+                    <button class="btn-tool btn-primary" style="width:100%; justify-content:center;"
+                        onclick="openModal('modalCreate')">
+                        <span class="material-icons-round">add</span> New Collection
+                    </button>
+                </div>
+                <ul class="coll-list" id="collList">
+                    <li style="text-align:center; padding:20px; color:var(--text-sec);">Loading...</li>
+                </ul>
+            </div>
+
+            <!-- SETTINGS TAB -->
+            <div id="tab-settings" class="analytics-panel">
+
+                <!-- ANDROID CONNECTION PANEL -->
+                <div id="panel-android" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="margin:0; display:flex; align-items:center; gap:10px;">
+                            <span class="material-icons-round"
+                                style="font-size:32px; color:var(--success);">android</span>
+                            Android App Connection
+                        </h3>
+                    </div>
+
+                    <!-- PROJECT DETAILS CARD -->
+                    <div class="stat-card"
+                        style="margin-bottom:20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <h4 style="margin:0 0 15px 0; font-size:16px; opacity:0.9;">📋 Your Project Details</h4>
+                        <div style="display:grid; gap:12px;">
+                            <div
+                                style="background: rgba(255,255,255,0.15); padding:12px; border-radius:8px; backdrop-filter: blur(10px);">
+                                <div style="font-size:11px; opacity:0.8; margin-bottom:4px;">Base URL</div>
+                                <div
+                                    style="font-family:var(--font-mono); font-size:14px; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+                                    <span id="androidBaseUrl">http://localhost/htdocs/</span>
+                                    <button class="mini-btn"
+                                        onclick="copyText(document.getElementById('androidBaseUrl').textContent)"
+                                        style="background:rgba(255,255,255,0.2);">
+                                        <span class="material-icons-round" style="font-size:14px;">content_copy</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                                <div style="background: rgba(255,255,255,0.15); padding:12px; border-radius:8px;">
+                                    <div style="font-size:11px; opacity:0.8; margin-bottom:4px;">Project ID</div>
+                                    <div style="font-family:var(--font-mono); font-size:18px; font-weight:700;"
+                                        id="androidPID">1</div>
+                                </div>
+                                <div style="background: rgba(255,255,255,0.15); padding:12px; border-radius:8px;">
+                                    <div style="font-size:11px; opacity:0.8; margin-bottom:4px;">API Key</div>
+                                    <div style="font-family:var(--font-mono); font-size:12px; font-weight:600;">
+                                        maxclube_secret</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QUICK SETUP STEPS -->
+                    <div class="stat-card" style="margin-bottom:20px;">
+                        <h4 style="margin:0 0 15px 0; font-size:16px; color:var(--primary);">🚀 Quick Setup (3 Steps)
+                        </h4>
+                        <div style="display:grid; gap:15px;">
+                            <div style="display:flex; gap:12px; align-items:start;">
+                                <div
+                                    style="width:28px; height:28px; background:var(--success); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">
+                                    1</div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:600; margin-bottom:4px;">Add Dependencies</div>
+                                    <div style="font-size:13px; color:var(--text-sec);">Copy code from "Dependencies"
+                                        section below</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:12px; align-items:start;">
+                                <div
+                                    style="width:28px; height:28px; background:var(--success); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">
+                                    2</div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:600; margin-bottom:4px;">Setup Retrofit</div>
+                                    <div style="font-size:13px; color:var(--text-sec);">Copy "RetrofitClient" code -
+                                        Already configured!</div>
+                                </div>
+                            </div>
+                            <div style="display:flex; gap:12px; align-items:start;">
+                                <div
+                                    style="width:28px; height:28px; background:var(--success); color:white; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">
+                                    3</div>
+                                <div style="flex:1;">
+                                    <div style="font-weight:600; margin-bottom:4px;">Start Using!</div>
+                                    <div style="font-size:13px; color:var(--text-sec);">Use example code to save/get
+                                        data</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CODE SECTIONS -->
+                    <div style="display:grid; gap:20px;">
+
+                        <!-- DEPENDENCIES -->
+                        <div class="stat-card">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <h4 style="margin:0; font-size:15px;">📦 Dependencies (build.gradle)</h4>
+                                <button class="btn-tool" onclick="copyCode('androidDeps')">
+                                    <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                                </button>
+                            </div>
+                            <pre id="androidDeps"
+                                style="background:#1e293b; color:#e2e8f0; padding:15px; border-radius:8px; overflow-x:auto; font-size:12px; margin:0;">dependencies {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+}</pre>
+                        </div>
+
+                        <!-- RETROFIT CLIENT -->
+                        <div class="stat-card">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <h4 style="margin:0; font-size:15px;">⚙️ RetrofitClient.kt (Auto-configured)</h4>
+                                <button class="btn-tool" onclick="copyCode('androidRetrofit')">
+                                    <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                                </button>
+                            </div>
+                            <pre id="androidRetrofit"
+                                style="background:#1e293b; color:#e2e8f0; padding:15px; border-radius:8px; overflow-x:auto; font-size:12px; margin:0; line-height:1.6;"></pre>
+                        </div>
+
+                        <!-- SAVE DATA EXAMPLE -->
+                        <div class="stat-card">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <h4 style="margin:0; font-size:15px;">💾 Save Data Example</h4>
+                                <button class="btn-tool" onclick="copyCode('androidSave')">
+                                    <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                                </button>
+                            </div>
+                            <pre id="androidSave"
+                                style="background:#1e293b; color:#e2e8f0; padding:15px; border-radius:8px; overflow-x:auto; font-size:12px; margin:0; line-height:1.6;">// ViewModel mein
+fun saveUserData(name: String, email: String) {
+    viewModelScope.launch {
+        try {
+            val userData = mapOf(
+                "name" to name,
+                "email" to email,
+                "timestamp" to System.currentTimeMillis()
+            )
+            
+            val response = RetrofitClient.api.saveData(
+                SaveRequest(
+                    action = "save",
+                    key = RetrofitClient.API_KEY,
+                    pid = RetrofitClient.PROJECT_ID,
+                    collection = "users",
+                    data = userData
+                )
+            )
+            
+            if (response.isSuccessful) {
+                println("✅ Data saved!")
+            }
+        } catch (e: Exception) {
+            println("❌ Error: ${e.message}")
+        }
+    }
+}</pre>
+                        </div>
+
+                        <!-- GET DATA EXAMPLE -->
+                        <div class="stat-card">
+                            <div
+                                style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                                <h4 style="margin:0; font-size:15px;">📥 Get Data Example</h4>
+                                <button class="btn-tool" onclick="copyCode('androidGet')">
+                                    <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                                </button>
+                            </div>
+                            <pre id="androidGet"
+                                style="background:#1e293b; color:#e2e8f0; padding:15px; border-radius:8px; overflow-x:auto; font-size:12px; margin:0; line-height:1.6;">// ViewModel mein
+fun getUserData() {
+    viewModelScope.launch {
+        try {
+            val response = RetrofitClient.api.getData(
+                action = "get",
+                key = RetrofitClient.API_KEY,
+                projectId = RetrofitClient.PROJECT_ID,
+                collection = "users"
+            )
+            
+            if (response.isSuccessful) {
+                val data = response.body()?.get(0)?.data
+                val name = data?.get("name") as? String
+                val email = data?.get("email") as? String
+                println("✅ User: $name, Email: $email")
+            }
+        } catch (e: Exception) {
+            println("❌ Error: ${e.message}")
+        }
+    }
+}</pre>
+                        </div>
+
+                    </div>
+
+                    <!-- HELP SECTION -->
+                    <div class="stat-card" style="margin-top:20px; background:#f0fdf4; border:2px solid #86efac;">
+                        <div style="display:flex; gap:12px; align-items:start;">
+                            <span class="material-icons-round"
+                                style="color:#16a34a; font-size:24px;">help_outline</span>
+                            <div>
+                                <h4 style="margin:0 0 8px 0; color:#16a34a;">Need Help?</h4>
+                                <p style="margin:0; font-size:13px; color:#166534; line-height:1.6;">
+                                    Complete documentation with API interface, data classes, and more examples available
+                                    in
+                                    <a href="docs.html" target="_blank"
+                                        style="color:#16a34a; font-weight:600;">Documentation</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- API KEYS PANEL -->
+                <div id="panel-apikeys" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="margin:0;">API Keys</h3>
+                        <button class="btn-tool btn-primary" onclick="openModal('modalAddApiKey')">
+                            <span class="material-icons-round">add</span> Generate Key
+                        </button>
+                    </div>
+                    <div id="apiKeysList"></div>
+                </div>
+
+                <!-- ACTIVITY LOGS PANEL -->
+                <div id="panel-logs" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="margin:0;">Activity Logs</h3>
+                        <div style="display:flex; gap:10px;">
+                            <button class="btn-tool" onclick="loadActivityLogs()">
+                                <span class="material-icons-round">refresh</span>
+                            </button>
+                            <button class="btn-tool" onclick="clearLogs()">
+                                <span class="material-icons-round">delete_sweep</span> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div id="activityLogsList" style="max-height:500px; overflow-y:auto;"></div>
+                </div>
+
+                <!-- BACKUPS PANEL -->
+                <div id="panel-backups" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="margin:0;">Backups</h3>
+                        <button class="btn-tool btn-primary" onclick="createBackup()">
+                            <span class="material-icons-round">backup</span> Create Backup
+                        </button>
+                    </div>
+                    <div id="backupsList"></div>
+                </div>
+
+                <!-- WEBHOOKS PANEL -->
+                <div id="panel-webhooks" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <h3 style="margin:0;">Webhooks</h3>
+                        <button class="btn-tool btn-primary" onclick="openModal('modalAddWebhook')">
+                            <span class="material-icons-round">add</span> Add Webhook
+                        </button>
+                    </div>
+                    <div id="webhooksList"></div>
+                </div>
+
+                <!-- SEARCH PANEL -->
+                <div id="panel-search" style="display:none;">
+                    <h3>Global Search</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:20px;">
+                        <input id="searchInput" class="input-field" placeholder="Search across all collections..."
+                            style="flex:1;">
+                        <button class="btn-tool btn-primary" onclick="performSearch()">
+                            <span class="material-icons-round">search</span> Search
+                        </button>
+                    </div>
+                    <div id="searchResults"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- MAIN PANEL -->
+        <div class="main">
+            <div class="toolbar">
+                <div class="path-bar" id="pathDisplay">
+                    <span class="material-icons-round" style="color:var(--text-sec);">folder</span> Select Collection
+                </div>
+                <div class="action-group">
+                    <button class="btn-tool btn-primary" onclick="openAddModal([])"><span
+                            class="material-icons-round">add</span> Add Data</button>
+                    <button class="btn-tool" onclick="refreshData()"><span
+                            class="material-icons-round">refresh</span></button>
+                    <button class="btn-tool desktop-only" onclick="exportJSON()"><span
+                            class="material-icons-round">download</span></button>
+                    <button class="btn-tool desktop-only" onclick="openModal('modalImport')"><span
+                            class="material-icons-round">upload</span></button>
+                </div>
+            </div>
+
+            <div id="treeRoot" class="editor">
+                <div
+                    style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-sec); opacity:0.6;">
+                    <span class="material-icons-round" style="font-size:64px; margin-bottom:15px;">dns</span>
+                    <p>Select a collection to manage data</p>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div style="display:flex; gap:15px;">
+                    <span id="footerCount">0 Items</span>
+                    <span id="dataSize">0 KB</span>
+                </div>
+                <span id="footerId">ID: --</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="modalAdd" class="modal-overlay">
+        <div class="modal">
+            <h3>Add Data</h3>
+            <div class="input-group">
+                <label class="input-label">Key Name</label>
+                <input id="addKey" class="input-field" placeholder="e.g. isPremium">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Data Type</label>
+                <select id="addType" class="input-field" onchange="toggleValInput()">
+                    <option value="string">String (Text)</option>
+                    <option value="number">Number</option>
+                    <option value="boolean">Boolean (True/False)</option>
+                    <option value="folder">Folder (Nested)</option>
+                </select>
+            </div>
+            <div class="input-group" id="valGroup">
+                <label class="input-label">Value</label>
+                <input id="addVal" class="input-field" placeholder="Enter value">
+                <div id="boolToggle" style="display:none; align-items:center; gap:10px; margin-top:5px;">
+                    <span style="font-size:12px; font-weight:bold; color:var(--text-sec);">False</span>
+                    <label class="switch">
+                        <input type="checkbox" id="addBool">
+                        <span class="slider"></span>
+                    </label>
+                    <span style="font-size:12px; font-weight:bold; color:var(--primary);">True</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-tool" onclick="closeModal('modalAdd')">Cancel</button>
+                <button class="btn-tool btn-primary" onclick="addData()">Add Data</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalCreate" class="modal-overlay">
+        <div class="modal">
+            <h3>New Collection</h3>
+            <div class="input-group">
+                <label class="input-label">Name</label>
+                <input id="newCollName" class="input-field" placeholder="e.g. users">
+            </div>
+            <div class="modal-footer">
+                <button class="btn-tool" onclick="closeModal('modalCreate')">Cancel</button>
+                <button class="btn-tool btn-primary" onclick="createColl()">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalImport" class="modal-overlay">
+        <div class="modal" style="width:500px;">
+            <h3>Import JSON</h3>
+            <div class="input-group">
+                <textarea id="importText" class="input-field" style="height:150px; resize:vertical;"
+                    placeholder='Paste JSON here...'></textarea>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-tool" onclick="closeModal('modalImport')">Cancel</button>
+                <button class="btn-tool btn-primary" onclick="submitImport()">Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- API KEY MODAL -->
+    <div id="modalAddApiKey" class="modal-overlay">
+        <div class="modal">
+            <h3>Generate API Key</h3>
+            <div class="input-group">
+                <label class="input-label">Key Name</label>
+                <input id="apiKeyName" class="input-field" placeholder="e.g. Production Key">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Permissions</label>
+                <select id="apiKeyPerms" class="input-field">
+                    <option value="read,write">Read & Write</option>
+                    <option value="read">Read Only</option>
+                    <option value="write">Write Only</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-tool" onclick="closeModal('modalAddApiKey')">Cancel</button>
+                <button class="btn-tool btn-primary" onclick="generateApiKey()">Generate</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- WEBHOOK MODAL -->
+    <div id="modalAddWebhook" class="modal-overlay">
+        <div class="modal">
+            <h3>Add Webhook</h3>
+            <div class="input-group">
+                <label class="input-label">Webhook URL</label>
+                <input id="webhookUrl" class="input-field" placeholder="https://example.com/webhook">
+            </div>
+            <div class="input-group">
+                <label class="input-label">Trigger Events</label>
+                <div style="display:flex; gap:15px; margin-top:10px;">
+                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                        <input type="checkbox" value="create" checked> Create
+                    </label>
+                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                        <input type="checkbox" value="update" checked> Update
+                    </label>
+                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer;">
+                        <input type="checkbox" value="delete" checked> Delete
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-tool" onclick="closeModal('modalAddWebhook')">Cancel</button>
+                <button class="btn-tool btn-primary" onclick="addWebhook()">Add Webhook</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "api.php";
+        const KEY = "maxclube_secret";
+
+        // GET APP ID FROM URL
+        const params = new URLSearchParams(window.location.search);
+        const PID = params.get('pid') || 1;
+        const APP_NAME = params.get('name') || "Default App";
+
+        document.getElementById('appTitle').innerText = APP_NAME;
+
+        let globalData = {};
+        let currentColl = "";
+        let pendingPath = [];
+        let saveTimer = null;
+
+        // --- INIT ---
+        window.onload = function () {
+            loadCollections();
+            loadAnalytics();
+            if (localStorage.getItem('theme') === 'dark') toggleTheme();
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape') document.querySelectorAll('.modal-overlay').forEach(el => el.style.display = 'none');
+            });
+        };
+
+        // --- ROBUST FETCH ---
+        async function robustFetch(action, params = {}) {
+            let url = `${API_URL}?action=${action}&key=${KEY}&pid=${PID}`; // Always send PID
+            for (let k in params) url += `&${k}=${encodeURIComponent(params[k])}`;
+
+            try {
+                let res = await fetch(url);
+                let text = await res.text();
+                try {
+                    let json = JSON.parse(text);
+                    if (json.status === "error") throw new Error(json.message);
+                    return json;
+                } catch (e) {
+                    console.error("PHP Error:", text);
+                    if (action === 'get_collections') {
+                        document.getElementById('collList').innerHTML = `<li style="color:var(--danger); padding:20px; text-align:center; font-size:12px;">Server Error. Check Console.</li>`;
+                    }
+                    throw e;
+                }
+            } catch (e) {
+                showToast(e.message, "error");
+                throw e;
+            }
+        }
+
+        // --- CORE LOGIC ---
+        async function loadCollections() {
+            try {
+                let list = await robustFetch('get_collections');
+                let html = "";
+                if (list.length === 0) html = "<li style='padding:15px; text-align:center; opacity:0.5'>No Collections</li>";
+
+                list.forEach(c => {
+                    let active = c === currentColl ? 'active' : '';
+                    html += `<li class="coll-item ${active}" onclick="selectColl('${c}')">
+                        <span style="display:flex; align-items:center; gap:8px;"><span class="material-icons-round">folder</span> ${c}</span>
+                        <span class="material-icons-round" style="font-size:16px; opacity:0;">arrow_forward</span>
+                    </li>`;
+                });
+                document.getElementById('collList').innerHTML = html;
+            } catch (e) { }
+        }
+
+        function selectColl(name) {
+            currentColl = name;
+            document.getElementById('pathDisplay').innerHTML = `<span class="material-icons-round" style="color:var(--primary);">folder_open</span> ${name}`;
+            loadCollections();
+            refreshData();
+            if (window.innerWidth <= 768) toggleSidebar();
+        }
+
+        async function refreshData() {
+            // Check if collection is selected
+            if (!currentColl || currentColl.trim() === '') {
+                document.getElementById('treeRoot').innerHTML = "<div style='text-align:center; padding:50px; opacity:0.5'>Select a collection to view data</div>";
+                return;
+            }
+
+            document.getElementById('treeRoot').innerHTML = "<div style='text-align:center; padding:50px; opacity:0.5'>Loading...</div>";
+            try {
+                let res = await robustFetch('get', { collection: currentColl });
+                if (res.length > 0) {
+                    globalData = res[0].data;
+                    document.getElementById('footerId').innerText = "ID: " + res[0].db_id;
+                } else {
+                    globalData = {};
+                    document.getElementById('footerId').innerText = "New";
+                }
+                renderTree();
+                updateStats();
+            } catch (e) {
+                console.error('Error loading data:', e);
+                document.getElementById('treeRoot').innerHTML = "<div style='text-align:center; padding:50px; color:var(--danger)'>Error loading data. Check console.</div>";
+            }
+        }
+
+        // --- RENDERER ---
+        function renderTree() {
+            const root = document.getElementById('treeRoot');
+            root.innerHTML = "";
+            if (Object.keys(globalData).length === 0) {
+                root.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:var(--text-sec); opacity:0.6;">
+                    <span class="material-icons-round" style="font-size:64px; margin-bottom:15px;">post_add</span>
+                    <button class="btn-tool btn-primary" onclick="openAddModal([])">Add First Data</button>
+                </div>`;
+                return;
+            }
+            root.appendChild(createNode(globalData, []));
+        }
+
+        function createNode(data, path) {
+            let container = document.createElement('div');
+            for (let key in data) {
+                let val = data[key];
+                let currentPath = [...path, key];
+                let node = document.createElement('div');
+                node.className = "node";
+
+                let row = document.createElement('div');
+                row.className = "row";
+
+                let type = typeof val;
+                if (val === null) type = "null";
+
+                let badge = "";
+                let valHtml = "";
+                let isObject = type === 'object' && val !== null;
+
+                if (isObject) {
+                    badge = `<span class="type-badge bg-obj">OBJ</span>`;
+                    let childCount = Object.keys(val).length;
+
+                    // Add toggle button for collapsible tree
+                    let toggleId = 'toggle-' + currentPath.join('-');
+                    let childrenId = 'children-' + currentPath.join('-');
+
+                    valHtml = `
+                        <span class="tree-toggle expanded" id="${toggleId}" onclick="toggleTreeNode('${toggleId}', '${childrenId}')"></span>
+                        <span style="font-size:11px; opacity:0.7;">{ ${childCount} items }</span>
+                    `;
+                } else if (type === 'boolean') {
+                    badge = `<span class="type-badge bg-bool">BOOL</span>`;
+                    let checked = val ? 'checked' : '';
+                    valHtml = `<label class="switch"><input type="checkbox" ${checked} onchange="toggleBool(['${currentPath.join("','")}'])"><span class="slider"></span></label>`;
+                } else if (type === 'number') {
+                    badge = `<span class="type-badge bg-num">NUM</span>`;
+                    let title = val > 1600000000000 ? `title="${new Date(val).toLocaleString()}"` : "";
+                    valHtml = `<span class="val val-num" ${title} contenteditable="true" onblur="saveEdit(['${currentPath.join("','")}', this.innerText])">${val}</span>`;
+                } else {
+                    badge = `<span class="type-badge bg-str">STR</span>`;
+                    valHtml = `<span class="val val-str" contenteditable="true" onblur="saveEdit(['${currentPath.join("','")}', this.innerText])">${val}</span>`;
+                }
+
+                row.innerHTML = `
+                    ${badge}
+                    <span class="key" title="Copy Path" onclick="copyText('${currentPath.join('/')}')">${key}:</span> 
+                    ${valHtml}
+                    <div class="actions">
+                        ${isObject ? `<button class="mini-btn" onclick="openAddModal(['${currentPath.join("','")}'])"><span class="material-icons-round" style="font-size:16px;">add</span></button>` : ''}
+                        <button class="mini-btn" onclick="copyText('${val}')"><span class="material-icons-round" style="font-size:14px;">content_copy</span></button>
+                        <button class="mini-btn del" onclick="delItem(['${currentPath.join("','")}'])"><span class="material-icons-round" style="font-size:16px;">close</span></button>
+                    </div>`;
+
+                node.appendChild(row);
+
+                if (isObject) {
+                    let childrenContainer = createNode(val, currentPath);
+                    childrenContainer.className = 'tree-children expanded';
+                    childrenContainer.id = 'children-' + currentPath.join('-');
+                    node.appendChild(childrenContainer);
+                }
+
+                container.appendChild(node);
+            }
+            return container;
+        }
+
+        // Toggle tree node expand/collapse
+        function toggleTreeNode(toggleId, childrenId) {
+            let toggle = document.getElementById(toggleId);
+            let children = document.getElementById(childrenId);
+
+            if (!toggle || !children) return;
+
+            if (toggle.classList.contains('expanded')) {
+                toggle.classList.remove('expanded');
+                toggle.classList.add('collapsed');
+                children.classList.remove('expanded');
+                children.classList.add('collapsed');
+            } else {
+                toggle.classList.remove('collapsed');
+                toggle.classList.add('expanded');
+                children.classList.remove('collapsed');
+                children.classList.add('expanded');
+                // Set max-height for smooth animation
+                children.style.maxHeight = children.scrollHeight + 'px';
+            }
+        }
+
+        // --- ACTIONS ---
+        function saveEdit(args) {
+            let path = args[0].split(',');
+            let val = args[1];
+            if (!isNaN(val) && val.trim() !== "") val = Number(val);
+            let target = globalData;
+            let key = path.pop();
+            for (let p of path) target = target[p];
+            target[key] = val;
+            triggerSave();
+        }
+
+        function toggleBool(path) {
+            path = path[0].split(',');
+            let target = globalData;
+            let key = path.pop();
+            for (let p of path) target = target[p];
+            target[key] = !target[key];
+            triggerSave();
+        }
+
+        function delItem(pathStr) {
+            if (!confirm("Delete this?")) return;
+            let path = pathStr[0].split(',');
+            let key = path.pop();
+            let target = globalData;
+            for (let p of path) target = target[p];
+            if (Array.isArray(target)) target.splice(key, 1);
+            else delete target[key];
+            triggerSave();
+            renderTree();
+        }
+
+        function triggerSave(dataToSave = null, immediate = false) {
+            document.getElementById('statusPill').className = "status-pill saving";
+            document.getElementById('statusText').innerText = "Saving...";
+
+            clearTimeout(saveTimer);
+            return new Promise((resolve, reject) => {
+                saveTimer = setTimeout(async () => {
+                    try {
+                        const payloadData = dataToSave !== null ? dataToSave : globalData;
+
+                        let res = await fetch(API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ action: "save", key: KEY, pid: PID, collection: currentColl, data: payloadData })
+                        });
+
+                        let text = await res.text();
+                        let json;
+                        try { json = JSON.parse(text); } catch (e) { throw new Error('Invalid server response'); }
+
+                        if (json.status && json.status === 'error') throw new Error(json.message || 'Save failed');
+
+                        document.getElementById('statusPill').className = "status-pill saved";
+                        document.getElementById('statusText').innerText = "Saved";
+                        updateStats();
+                        resolve(json);
+                    } catch (e) {
+                        document.getElementById('statusPill').className = "status-pill error";
+                        document.getElementById('statusText').innerText = "Error";
+                        showToast(e.message, 'error');
+                        reject(e);
+                    }
+                }, immediate ? 0 : 1000);
+            });
+        }
+
+        async function loadAnalytics() {
+            try {
+                let stats = await robustFetch('get_analytics');
+                if (stats.length > 0) {
+                    document.getElementById('statReads').innerText = stats[0].reads;
+                    document.getElementById('statWrites').innerText = stats[0].writes;
+                }
+            } catch (e) { }
+        }
+
+        // --- STATS & ANALYTICS UPDATE ---
+        function updateStats() {
+            let json = JSON.stringify(globalData);
+            let size = new Blob([json]).size;
+            let kb = (size / 1024).toFixed(2);
+
+            // UI Updates
+            if (document.getElementById('statSize')) document.getElementById('statSize').innerText = kb + " KB";
+            if (document.getElementById('dataSize')) document.getElementById('dataSize').innerText = kb + " KB";
+
+            // Bar Logic
+            let limit = 5120; // 5MB in KB
+            let percent = Math.min((kb / limit) * 100, 100);
+            let bar = document.getElementById('statBar');
+            if (bar) {
+                bar.style.width = percent + "%";
+                bar.style.backgroundColor = percent > 80 ? "var(--danger)" : "var(--primary)";
+            }
+
+            // Count Distribution
+            let count = 0;
+            let types = { string: 0, number: 0, boolean: 0, object: 0 };
+
+            function traverse(obj) {
+                for (let k in obj) {
+                    count++;
+                    let t = typeof obj[k];
+                    if (t === 'object' && obj[k] !== null) {
+                        types.object++;
+                        traverse(obj[k]);
+                    } else if (t === 'boolean') types.boolean++;
+                    else if (t === 'number') types.number++;
+                    else types.string++;
+                }
+            }
+            traverse(globalData);
+
+            if (document.getElementById('itemCount')) document.getElementById('itemCount').innerText = count + " Items";
+            if (document.getElementById('footerCount')) document.getElementById('footerCount').innerText = count + " Items";
+
+            // Update Distribution Bars
+            updateDistBar('barStr', 'countStr', types.string, count);
+            updateDistBar('barNum', 'countNum', types.number, count);
+            updateDistBar('barBool', 'countBool', types.boolean, count);
+            updateDistBar('barObj', 'countObj', types.object, count);
+        }
+
+        function updateDistBar(barId, countId, val, total) {
+            let elBar = document.getElementById(barId);
+            let elCount = document.getElementById(countId);
+            if (elBar && elCount) {
+                elCount.innerText = val;
+                let p = total > 0 ? (val / total) * 100 : 0;
+                elBar.style.width = p + "%";
+            }
+        }
+
+        function copyText(txt) {
+            navigator.clipboard.writeText(txt);
+            showToast("Copied: " + txt, "success");
+        }
+
+        function showToast(msg, type) {
+            let t = document.createElement('div');
+            t.className = "toast";
+            if (type === 'error') t.style.borderLeft = "4px solid var(--danger)";
+            else t.style.borderLeft = "4px solid var(--success)";
+            t.innerText = msg;
+            document.getElementById('toast-container').appendChild(t);
+            setTimeout(() => t.remove(), 3000);
+        }
+
+        // --- MODALS ---
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        async function createColl() {
+            let name = document.getElementById('newCollName').value.trim();
+            if (!name) return;
+            if (!/^[a-zA-Z0-9_\-\s]+$/.test(name)) { showToast('Invalid collection name. Use letters, numbers, spaces, hyphen or underscore only.', 'error'); return; }
+
+            // Set current collection and UI without triggering an immediate refresh
+            currentColl = name;
+            document.getElementById('pathDisplay').innerHTML = `<span class="material-icons-round" style="color:var(--primary);">folder_open</span> ${name}`;
+
+            globalData = { created: Date.now() };
+
+            // Force immediate save using snapshot to avoid race conditions with refreshData
+            try {
+                await triggerSave(globalData, true);
+                loadCollections();
+                renderTree();
+                closeModal('modalCreate');
+            } catch (e) {
+                // Save failed; keep modal open so user can retry
+            }
+        }
+
+        function openAddModal(p) {
+            pendingPath = p;
+            document.getElementById('addKey').value = "";
+            document.getElementById('addVal').value = "";
+            document.getElementById('addType').value = "string";
+            toggleValInput();
+            openModal('modalAdd');
+        }
+
+        function toggleValInput() {
+            let type = document.getElementById('addType').value;
+            let valInput = document.getElementById('addVal');
+            let boolToggle = document.getElementById('boolToggle');
+
+            if (type === 'boolean') { valInput.style.display = 'none'; boolToggle.style.display = 'flex'; }
+            else if (type === 'folder') { valInput.style.display = 'none'; boolToggle.style.display = 'none'; }
+            else { valInput.style.display = 'block'; boolToggle.style.display = 'none'; valInput.type = type === 'number' ? 'number' : 'text'; }
+        }
+
+        function addData() {
+            let k = document.getElementById('addKey').value;
+            let type = document.getElementById('addType').value;
+            let v;
+
+            if (type === 'string') v = document.getElementById('addVal').value;
+            else if (type === 'number') v = Number(document.getElementById('addVal').value);
+            else if (type === 'boolean') v = document.getElementById('addBool').checked;
+            else if (type === 'folder') v = {};
+
+            let target = globalData;
+            for (let p of pendingPath) target = target[p];
+            target[k] = v;
+
+            triggerSave();
+            renderTree();
+            closeModal('modalAdd');
+        }
+
+        function switchTab(tab, btn) {
+            document.querySelectorAll('.nav-tab').forEach(e => e.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('tab-db').style.display = tab === 'db' ? 'flex' : 'none';
+            document.getElementById('tab-settings').style.display = tab === 'settings' ? 'block' : 'none';
+            document.getElementById('settings-subtabs').style.display = tab === 'settings' ? 'flex' : 'none';
+
+            if (tab === 'settings') {
+                switchSubTab('apikeys'); // Default to API keys
+                switchSubTab('android'); // Default to Android panel
+            }
+        }
+
+        // ==================== ANDROID PANEL ====================
+        function loadAndroidPanel() {
+            // Update project-specific details
+            document.getElementById('androidPID').textContent = PID;
+
+            // Get current URL and construct base URL
+            const currentUrl = window.location.origin + window.location.pathname.replace('console.html', '');
+            document.getElementById('androidBaseUrl').textContent = currentUrl;
+
+            // Generate Retrofit client code with project details
+            const retrofitCode = `import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.Response
+import retrofit2.http.*
+
+// Data Classes
+data class SaveRequest(
+    val action: String = "save",
+    val key: String,
+    val pid: Int,
+    val collection: String,
+    val data: Any
+)
+
+data class SaveResponse(
+    val status: String,
+    val id: Int
+)
+
+data class DataResponse(
+    val db_id: Int,
+    val data: Map<String, Any>
+)
+
+// API Interface
+interface UltraBaseAPI {
+    @POST("api.php")
+    suspend fun saveData(@Body request: SaveRequest): Response<SaveResponse>
+    
+    @GET("api.php")
+    suspend fun getData(
+        @Query("action") action: String = "get",
+        @Query("key") key: String,
+        @Query("pid") projectId: Int,
+        @Query("collection") collection: String
+    ): Response<List<DataResponse>>
+}
+
+// Retrofit Client
+object RetrofitClient {
+    private const val BASE_URL = "${currentUrl}"
+    const val API_KEY = "${KEY}"
+    const val PROJECT_ID = ${PID}
+    
+    val api: UltraBaseAPI by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(UltraBaseAPI::class.java)
+    }
+}`;
+
+            document.getElementById('androidRetrofit').textContent = retrofitCode;
+        }
+
+        function copyCode(elementId) {
+            const code = document.getElementById(elementId).textContent;
+            copyText(code);
+        }
+
+        function switchSubTab(panel) {
+            // Hide all panels
+            ['android', 'apikeys', 'logs', 'backups', 'webhooks', 'search'].forEach(p => {
+                document.getElementById('panel-' + p).style.display = 'none';
+            });
+
+            // Show selected panel
+            document.getElementById('panel-' + panel).style.display = 'block';
+
+            // Load data for the panel
+            if (panel === 'android') loadAndroidPanel();
+            else if (panel === 'apikeys') loadApiKeys();
+            else if (panel === 'logs') loadActivityLogs();
+            else if (panel === 'backups') loadBackups();
+            else if (panel === 'webhooks') loadWebhooks();
+        }
+
+        // ==================== API KEYS ====================
+        async function loadApiKeys() {
+            try {
+                let keys = await robustFetch('list_api_keys');
+                let html = '';
+
+                if (keys.length === 0) {
+                    html = '<div style="text-align:center; padding:40px; color:var(--text-sec);">No API keys yet. Generate one to get started!</div>';
+                } else {
+                    keys.forEach(k => {
+                        let statusBadge = k.is_active == 1
+                            ? '<span style="color:var(--success); font-size:11px;">● Active</span>'
+                            : '<span style="color:var(--danger); font-size:11px;">● Revoked</span>';
+
+                        html += `<div class="stat-card" style="margin-bottom:15px;">
+                            <div style="display:flex; justify-content:space-between; align-items:start;">
+                                <div style="flex:1;">
+                                    <div style="font-weight:700; font-size:15px; margin-bottom:5px;">${k.key_name}</div>
+                                    <div style="font-family:var(--font-mono); font-size:12px; color:var(--text-sec); margin-bottom:8px; word-break:break-all;">${k.api_key}</div>
+                                    <div style="font-size:12px; color:var(--text-sec);">
+                                        Permissions: <strong>${k.permissions}</strong> | Created: ${new Date(k.created_at).toLocaleDateString()} | ${statusBadge}
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button class="mini-btn" onclick="copyText('${k.api_key}')" title="Copy Key">
+                                        <span class="material-icons-round" style="font-size:16px;">content_copy</span>
+                                    </button>
+                                    ${k.is_active == 1 ? `<button class="mini-btn del" onclick="revokeApiKey(${k.id})" title="Revoke">
+                                        <span class="material-icons-round" style="font-size:16px;">block</span>
+                                    </button>` : ''}
+                                    <button class="mini-btn del" onclick="deleteApiKey(${k.id})" title="Delete">
+                                        <span class="material-icons-round" style="font-size:16px;">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                }
+
+                document.getElementById('apiKeysList').innerHTML = html;
+            } catch (e) { }
+        }
+
+        async function generateApiKey() {
+            let name = document.getElementById('apiKeyName').value.trim();
+            let perms = document.getElementById('apiKeyPerms').value;
+
+            if (!name) {
+                showToast('Please enter a key name', 'error');
+                return;
+            }
+
+            try {
+                let res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'generate_api_key', key: KEY, pid: PID, key_name: name, permissions: perms })
+                });
+
+                let data = await res.json();
+                if (data.status === 'success') {
+                    showToast('API Key generated successfully!', 'success');
+                    closeModal('modalAddApiKey');
+                    loadApiKeys();
+
+                    // Show the key in a prompt
+                    prompt('Your new API key (copy it now!):', data.api_key);
+                } else {
+                    showToast(data.message || 'Failed to generate key', 'error');
+                }
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function revokeApiKey(id) {
+            if (!confirm('Revoke this API key? It will no longer work.')) return;
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'revoke_api_key', key: KEY, pid: PID, key_id: id })
+                });
+                showToast('API key revoked', 'success');
+                loadApiKeys();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteApiKey(id) {
+            if (!confirm('Permanently delete this API key?')) return;
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete_api_key', key: KEY, pid: PID, key_id: id })
+                });
+                showToast('API key deleted', 'success');
+                loadApiKeys();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // ==================== ACTIVITY LOGS ====================
+        async function loadActivityLogs() {
+            try {
+                let logs = await robustFetch('get_activity_logs', { limit: 100 });
+                let html = '';
+
+                if (logs.length === 0) {
+                    html = '<div style="text-align:center; padding:40px; color:var(--text-sec);">No activity logs yet</div>';
+                } else {
+                    logs.forEach(log => {
+                        let icon = log.action.includes('create') ? 'add_circle' :
+                            log.action.includes('delete') ? 'delete' :
+                                log.action.includes('save') || log.action.includes('update') ? 'edit' :
+                                    log.action.includes('backup') ? 'backup' :
+                                        log.action.includes('webhook') ? 'webhook' :
+                                            log.action.includes('search') ? 'search' : 'info';
+
+                        let color = log.action.includes('delete') ? 'var(--danger)' :
+                            log.action.includes('create') ? 'var(--success)' : 'var(--primary)';
+
+                        html += `<div class="row" style="margin-bottom:8px; padding:12px;">
+                            <span class="material-icons-round" style="color:${color}; margin-right:12px;">${icon}</span>
+                            <div style="flex:1;">
+                                <div style="font-weight:600; font-size:13px;">${log.action.replace(/_/g, ' ').toUpperCase()}</div>
+                                <div style="font-size:12px; color:var(--text-sec);">${log.details || 'No details'}</div>
+                                ${log.collection ? `<div style="font-size:11px; color:var(--text-sec); margin-top:3px;">Collection: ${log.collection}</div>` : ''}
+                            </div>
+                            <div style="text-align:right; font-size:11px; color:var(--text-sec);">
+                                ${new Date(log.timestamp).toLocaleString()}<br>
+                                ${log.ip_address}
+                            </div>
+                        </div>`;
+                    });
+                }
+
+                document.getElementById('activityLogsList').innerHTML = html;
+            } catch (e) { }
+        }
+
+        async function clearLogs() {
+            if (!confirm('Clear all activity logs? This cannot be undone.')) return;
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'clear_activity_logs', key: KEY, pid: PID })
+                });
+                showToast('Logs cleared', 'success');
+                loadActivityLogs();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // ==================== BACKUPS ====================
+        async function loadBackups() {
+            try {
+                let backups = await robustFetch('list_backups');
+                let html = '';
+
+                if (backups.length === 0) {
+                    html = '<div style="text-align:center; padding:40px; color:var(--text-sec);">No backups yet. Create one to secure your data!</div>';
+                } else {
+                    backups.forEach(b => {
+                        html += `<div class="stat-card" style="margin-bottom:15px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div>
+                                    <div style="font-weight:700; font-size:15px; margin-bottom:5px;">${b.backup_name}</div>
+                                    <div style="font-size:12px; color:var(--text-sec);">
+                                        Size: ${b.size_kb} KB | Created: ${new Date(b.created_at).toLocaleString()}
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button class="btn-tool" onclick="restoreBackup(${b.id})">
+                                        <span class="material-icons-round">restore</span> Restore
+                                    </button>
+                                    <button class="mini-btn del" onclick="deleteBackup(${b.id})">
+                                        <span class="material-icons-round" style="font-size:16px;">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                }
+
+                document.getElementById('backupsList').innerHTML = html;
+            } catch (e) { }
+        }
+
+        async function createBackup() {
+            let name = prompt('Backup name (optional):', `Backup ${new Date().toLocaleString()}`);
+            if (name === null) return;
+
+            try {
+                showToast('Creating backup...', 'success');
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'create_backup', key: KEY, pid: PID, backup_name: name })
+                });
+                showToast('Backup created successfully!', 'success');
+                loadBackups();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function restoreBackup(id) {
+            if (!confirm('Restore this backup? Current data will be replaced!')) return;
+
+            try {
+                showToast('Restoring backup...', 'success');
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'restore_backup', key: KEY, pid: PID, backup_id: id })
+                });
+                showToast('Backup restored successfully!', 'success');
+                loadCollections();
+                refreshData();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteBackup(id) {
+            if (!confirm('Delete this backup permanently?')) return;
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete_backup', key: KEY, pid: PID, backup_id: id })
+                });
+                showToast('Backup deleted', 'success');
+                loadBackups();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // ==================== WEBHOOKS ====================
+        async function loadWebhooks() {
+            try {
+                let webhooks = await robustFetch('list_webhooks');
+                let html = '';
+
+                if (webhooks.length === 0) {
+                    html = '<div style="text-align:center; padding:40px; color:var(--text-sec);">No webhooks configured</div>';
+                } else {
+                    webhooks.forEach(w => {
+                        let statusBadge = w.is_active == 1
+                            ? '<span style="color:var(--success); font-size:11px;">● Active</span>'
+                            : '<span style="color:var(--danger); font-size:11px;">● Inactive</span>';
+
+                        html += `<div class="stat-card" style="margin-bottom:15px;">
+                            <div style="display:flex; justify-content:space-between; align-items:start;">
+                                <div style="flex:1;">
+                                    <div style="font-weight:700; font-size:14px; margin-bottom:5px; word-break:break-all;">${w.webhook_url}</div>
+                                    <div style="font-size:12px; color:var(--text-sec);">
+                                        Events: <strong>${w.events}</strong> | Created: ${new Date(w.created_at).toLocaleDateString()} | ${statusBadge}
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button class="mini-btn" onclick="toggleWebhook(${w.id}, ${w.is_active == 1 ? 0 : 1})" title="${w.is_active == 1 ? 'Disable' : 'Enable'}">
+                                        <span class="material-icons-round" style="font-size:16px;">${w.is_active == 1 ? 'toggle_on' : 'toggle_off'}</span>
+                                    </button>
+                                    <button class="mini-btn del" onclick="deleteWebhook(${w.id})" title="Delete">
+                                        <span class="material-icons-round" style="font-size:16px;">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                }
+
+                document.getElementById('webhooksList').innerHTML = html;
+            } catch (e) { }
+        }
+
+        async function addWebhook() {
+            let url = document.getElementById('webhookUrl').value.trim();
+            if (!url) {
+                showToast('Please enter a webhook URL', 'error');
+                return;
+            }
+
+            // Get selected events
+            let checkboxes = document.querySelectorAll('#modalAddWebhook input[type="checkbox"]:checked');
+            let events = Array.from(checkboxes).map(cb => cb.value).join(',');
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'add_webhook', key: KEY, pid: PID, webhook_url: url, events: events })
+                });
+                showToast('Webhook added successfully!', 'success');
+                closeModal('modalAddWebhook');
+                loadWebhooks();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function toggleWebhook(id, isActive) {
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'toggle_webhook', key: KEY, pid: PID, webhook_id: id, is_active: isActive })
+                });
+                showToast('Webhook updated', 'success');
+                loadWebhooks();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        async function deleteWebhook(id) {
+            if (!confirm('Delete this webhook?')) return;
+
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'delete_webhook', key: KEY, pid: PID, webhook_id: id })
+                });
+                showToast('Webhook deleted', 'success');
+                loadWebhooks();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // ==================== SEARCH ====================
+        async function performSearch() {
+            let query = document.getElementById('searchInput').value.trim();
+            if (query.length < 2) {
+                showToast('Search query too short (min 2 characters)', 'error');
+                return;
+            }
+
+            try {
+                let results = await robustFetch('search_data', { query: query });
+                let html = '';
+
+                if (results.length === 0) {
+                    html = '<div style="text-align:center; padding:40px; color:var(--text-sec);">No results found</div>';
+                } else {
+                    html = `<div style="margin-bottom:15px; font-weight:600;">Found ${results.length} result(s)</div>`;
+                    results.forEach(r => {
+                        html += `<div class="stat-card" style="margin-bottom:15px;">
+                            <div style="font-weight:700; font-size:14px; margin-bottom:10px; color:var(--primary);">
+                                <span class="material-icons-round" style="font-size:16px; vertical-align:middle;">folder</span> ${r.collection}
+                            </div>
+                            <pre style="background:var(--bg); padding:12px; border-radius:8px; overflow-x:auto; font-size:12px; font-family:var(--font-mono);">${JSON.stringify(r.data, null, 2)}</pre>
+                        </div>`;
+                    });
+                }
+
+                document.getElementById('searchResults').innerHTML = html;
+            } catch (e) {
+                showToast('Search failed: ' + e.message, 'error');
+            }
+        }
+
+        // Add Enter key support for search
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') performSearch();
+                });
+            }
+        });
+
+        function toggleTheme() {
+            let b = document.body;
+            let t = b.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            b.setAttribute('data-theme', t);
+            localStorage.setItem('theme', t);
+            document.getElementById('themeIcon').innerText = t === 'dark' ? 'light_mode' : 'dark_mode';
+        }
+
+        async function logoutConsole() {
+            if (!confirm('Logout from UltraBase?')) return;
+            try {
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'logout', key: KEY })
+                });
+                window.location.href = 'login.html';
+            } catch (e) {
+                alert('Logout failed');
+            }
+        }
+
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+            else if (document.exitFullscreen) document.exitFullscreen();
+        }
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').style.display = document.getElementById('sidebar').classList.contains('open') ? 'block' : 'none';
+        }
+        function exportJSON() {
+            let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(globalData, null, 2));
+            let anchor = document.createElement('a');
+            anchor.setAttribute("href", dataStr);
+            anchor.setAttribute("download", currentColl + ".json");
+            anchor.click();
+        }
+        function submitImport() {
+            try {
+                globalData = JSON.parse(document.getElementById('importText').value);
+                triggerSave();
+                renderTree();
+                closeModal('modalImport');
+            } catch (e) { showToast("Invalid JSON", "error"); }
+        }
+    </script>
+</body>
+
+</html>

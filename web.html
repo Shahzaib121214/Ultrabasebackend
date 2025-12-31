@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="referrer" content="no-referrer-when-downgrade">
+    <meta name="monetization" content="none">
+    <title>Web Integration - UltraBase</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --text-sec: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 30px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .gradient-card {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-white {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-top: 12px;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .step {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-box {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 2px solid #86efac;
+            color: #065f46;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border: 2px solid #93c5fd;
+            color: #1e40af;
+        }
+
+        .copy-all-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 18px 30px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            z-index: 1000;
+        }
+
+        .copy-all-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.5);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>
+                <span class="material-icons-round" style="font-size:40px;">language</span>
+                Web Integration
+            </h1>
+            <button class="btn btn-white" onclick="window.close()">
+                <span class="material-icons-round">close</span> Close
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- PROJECT DETAILS -->
+        <div class="card gradient-card">
+            <h2 style="margin:0 0 20px 0; font-size:24px;">📋 Your Project Configuration</h2>
+            <div class="info-box">
+                <div class="info-label">API URL</div>
+                <div class="info-value">
+                    <span id="baseUrl">Loading...</span>
+                    <button class="btn btn-white" onclick="copyText(document.getElementById('baseUrl').textContent)">
+                        <span class="material-icons-round" style="font-size:18px;">content_copy</span>
+                    </button>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="info-box">
+                    <div class="info-label">Project ID</div>
+                    <div class="info-value" id="projectId">1</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">API Key</div>
+                    <div class="info-value">maxclube_secret</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUICK COMPARISON -->
+        <div class="card">
+            <h3 style="margin:0 0 15px 0; color:var(--primary);">🔥 Vanilla JavaScript - No Framework Needed!</h3>
+            <div class="feature-grid">
+                <div class="feature-box">
+                    <div style="font-size:32px; margin-bottom:10px;">✅</div>
+                    <h4>Pure JavaScript</h4>
+                    <p style="font-size:13px; color:var(--text-sec); margin-top:5px;">No dependencies, no build tools
+                    </p>
+                </div>
+                <div class="feature-box">
+                    <div style="font-size:32px; margin-bottom:10px;">🚀</div>
+                    <h4>Works Everywhere</h4>
+                    <p style="font-size:13px; color:var(--text-sec); margin-top:5px;">HTML, React, Vue, Angular - sab
+                        mein!</p>
+                </div>
+                <div class="feature-box">
+                    <div style="font-size:32px; margin-bottom:10px;">💰</div>
+                    <h4>Completely Free</h4>
+                    <p style="font-size:13px; color:var(--text-sec); margin-top:5px;">No limits, no billing</p>
+                </div>
+                <div class="feature-box">
+                    <div style="font-size:32px; margin-bottom:10px;">⚡</div>
+                    <h4>Super Fast</h4>
+                    <p style="font-size:13px; color:var(--text-sec); margin-top:5px;">Simple fetch API calls</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETUP -->
+        <div class="card">
+            <h3 style="margin:0 0 20px 0; color:var(--primary);">🚀 Quick Setup</h3>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div style="flex:1;">
+                    <h4 style="margin:0 0 8px 0;">Create API Helper</h4>
+                    <p style="font-size:14px; color:var(--text-sec); margin-bottom:10px;">
+                        Ek simple JavaScript file banayein: <code>ultrabase.js</code>
+                    </p>
+                    <div class="code-header">
+                        <span style="font-weight:600;">ultrabase.js</span>
+                        <button class="btn btn-primary" onclick="copyCode('ultrabaseJs')">
+                            <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                        </button>
+                    </div>
+                    <div class="code-block" id="ultrabaseJs"></div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div style="flex:1;">
+                    <h4 style="margin:0 0 8px 0;">Include in HTML</h4>
+                    <div class="code-block">&lt;script src="ultrabase.js"&gt;&lt;/script&gt;</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div style="flex:1;">
+                    <h4 style="margin:0 0 8px 0;">Start Using!</h4>
+                    <p style="font-size:14px; color:var(--text-sec);">
+                        Bas! Ab aap data save aur retrieve kar sakte hain.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CODE EXAMPLES -->
+        <div class="card">
+            <h3 style="margin:0 0 20px 0; color:var(--primary);">💡 Usage Examples</h3>
+
+            <!-- SAVE DATA -->
+            <div style="margin-bottom:30px;">
+                <div class="code-header">
+                    <span style="font-weight:600;">💾 Save Data</span>
+                    <button class="btn btn-primary" onclick="copyCode('saveExample')">
+                        <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                    </button>
+                </div>
+                <div class="code-block" id="saveExample">// Save user data
+                    async function saveUser() {
+                    const userData = {
+                    name: "Ali Khan",
+                    email: "ali@example.com",
+                    age: 25,
+                    timestamp: Date.now()
+                    };
+
+                    const result = await UltraBase.save('users', userData);
+                    console.log('✅ Data saved!', result);
+                    }
+
+                    // Call it
+                    saveUser();</div>
+            </div>
+
+            <!-- GET DATA -->
+            <div style="margin-bottom:30px;">
+                <div class="code-header">
+                    <span style="font-weight:600;">📥 Get Data</span>
+                    <button class="btn btn-primary" onclick="copyCode('getExample')">
+                        <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                    </button>
+                </div>
+                <div class="code-block" id="getExample">// Get user data
+                    async function getUser() {
+                    const data = await UltraBase.get('users');
+
+                    if (data) {
+                    console.log('User:', data.name);
+                    console.log('Email:', data.email);
+
+                    // Update UI
+                    document.getElementById('userName').textContent = data.name;
+                    }
+                    }
+
+                    // Call it
+                    getUser();</div>
+            </div>
+
+            <!-- REAL-TIME CHAT -->
+            <div style="margin-bottom:30px;">
+                <div class="code-header">
+                    <span style="font-weight:600;">💬 Chat App Example</span>
+                    <button class="btn btn-primary" onclick="copyCode('chatExample')">
+                        <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                    </button>
+                </div>
+                <div class="code-block" id="chatExample">// Send message
+                    async function sendMessage(text) {
+                    const messages = await UltraBase.get('messages') || { list: [] };
+
+                    messages.list.push({
+                    id: Date.now(),
+                    sender: "User123",
+                    text: text,
+                    timestamp: Date.now()
+                    });
+
+                    await UltraBase.save('messages', messages);
+                    displayMessages();
+                    }
+
+                    // Get and display messages
+                    async function displayMessages() {
+                    const data = await UltraBase.get('messages');
+                    const chatDiv = document.getElementById('chat');
+
+                    if (data && data.list) {
+                    chatDiv.innerHTML = data.list.map(msg => `
+                    <div class="message">
+                        <strong>${msg.sender}:</strong> ${msg.text}
+                    </div>
+                    `).join('');
+                    }
+                    }
+
+                    // Auto-refresh every 2 seconds
+                    setInterval(displayMessages, 2000);
+                </div>
+            </div>
+
+            <!-- TODO APP -->
+            <div>
+                <div class="code-header">
+                    <span style="font-weight:600;">✅ Todo App Example</span>
+                    <button class="btn btn-primary" onclick="copyCode('todoExample')">
+                        <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                    </button>
+                </div>
+                <div class="code-block" id="todoExample">// Add todo
+                    async function addTodo(task) {
+                    const todos = await UltraBase.get('todos') || { items: [] };
+
+                    todos.items.push({
+                    id: Date.now(),
+                    task: task,
+                    completed: false,
+                    createdAt: Date.now()
+                    });
+
+                    await UltraBase.save('todos', todos);
+                    renderTodos();
+                    }
+
+                    // Toggle todo
+                    async function toggleTodo(id) {
+                    const todos = await UltraBase.get('todos');
+                    const todo = todos.items.find(t => t.id === id);
+
+                    if (todo) {
+                    todo.completed = !todo.completed;
+                    await UltraBase.save('todos', todos);
+                    renderTodos();
+                    }
+                    }
+
+                    // Render todos
+                    async function renderTodos() {
+                    const data = await UltraBase.get('todos');
+                    const list = document.getElementById('todoList');
+
+                    if (data && data.items) {
+                    list.innerHTML = data.items.map(todo => `
+                    <div class="todo ${todo.completed ? 'done' : ''}">
+                        <input type="checkbox" ${todo.completed ? 'checked' : '' } onclick="toggleTodo(${todo.id})">
+                        <span>${todo.task}</span>
+                    </div>
+                    `).join('');
+                    }
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- HELP -->
+        <div class="alert alert-success">
+            <span class="material-icons-round" style="font-size:28px;">help_outline</span>
+            <div>
+                <h4 style="margin:0 0 5px 0;">Need More Help?</h4>
+                <p style="margin:0; font-size:14px;">
+                    Complete documentation:
+                    <a href="docs.html" target="_blank" style="color:#065f46; font-weight:700;">View Documentation</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <span class="material-icons-round" style="font-size:28px;">smart_toy</span>
+            <div>
+                <h4 style="margin:0 0 5px 0;">Using AI Assistant?</h4>
+                <p style="margin:0; font-size:14px;">
+                    Click the <strong>"Copy All for AI"</strong> button to copy everything!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING COPY ALL BUTTON -->
+    <button class="copy-all-btn" onclick="copyAllForAI()">
+        <span class="material-icons-round" style="font-size:24px;">smart_toy</span>
+        Copy All for AI
+    </button>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const PID = params.get('pid') || '1';
+        const KEY = 'maxclube_secret';
+
+        document.getElementById('projectId').textContent = PID;
+
+        const currentUrl = window.location.origin + window.location.pathname.replace('web.html', '');
+        const apiUrl = currentUrl + 'api.php';
+        document.getElementById('baseUrl').textContent = apiUrl;
+
+        // Generate UltraBase.js code
+        const ultrabaseCode = `// UltraBase - Simple Backend API
+const UltraBase = {
+    API_URL: '${apiUrl}',
+    API_KEY: '${KEY}',
+    PROJECT_ID: ${PID},
+    
+    // Save data to collection
+    async save(collection, data) {
+        const response = await fetch(this.API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'save',
+                key: this.API_KEY,
+                pid: this.PROJECT_ID,
+                collection: collection,
+                data: data
+            })
+        });
+        
+        const result = await response.json();
+        if (result.status === 'error') throw new Error(result.message);
+        return result;
+    },
+    
+    // Get data from collection
+    async get(collection) {
+        const url = \`\${this.API_URL}?action=get&key=\${this.API_KEY}&pid=\${this.PROJECT_ID}&collection=\${collection}\`;
+        const response = await fetch(url);
+        const result = await response.json();
+        
+        if (result.length > 0) {
+            return result[0].data;
+        }
+        return null;
+    }
+};`;
+
+        document.getElementById('ultrabaseJs').textContent = ultrabaseCode;
+
+        function copyCode(id) {
+            const code = document.getElementById(id).textContent;
+            copyText(code);
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Copied to clipboard!');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function copyAllForAI() {
+            const allDetails = `
+# UltraBase Web Integration Guide
+
+## Project Configuration
+- **API URL:** ${apiUrl}
+- **Project ID:** ${PID}
+- **API Key:** ${KEY}
+
+## UltraBase.js (Complete Helper)
+\`\`\`javascript
+${ultrabaseCode}
+\`\`\`
+
+## Save Data Example
+\`\`\`javascript
+${document.getElementById('saveExample').textContent}
+\`\`\`
+
+## Get Data Example
+\`\`\`javascript
+${document.getElementById('getExample').textContent}
+\`\`\`
+
+## Chat App Example
+\`\`\`javascript
+${document.getElementById('chatExample').textContent}
+\`\`\`
+
+## Todo App Example
+\`\`\`javascript
+${document.getElementById('todoExample').textContent}
+\`\`\`
+
+## Features
+- Pure JavaScript (no dependencies)
+- Works with any framework (React, Vue, Angular)
+- Simple fetch API
+- Real-time data sync
+- Completely free
+
+## Need Help?
+Ask your AI: "Help me integrate UltraBase in my web app"
+`;
+
+            copyText(allDetails);
+            showToast('🤖 All details copied! Paste in your AI assistant.');
+        }
+    </script>
+</body>
+
+</html>

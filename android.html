@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android Integration - UltraBase</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --success: #10b981;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --text-sec: #64748b;
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .gradient-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 12px;
+        }
+
+        .info-label {
+            font-size: 11px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-white {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn-white:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 12px;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            position: relative;
+            margin-top: 12px;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .step {
+            display: flex;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            background: var(--success);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .feature-box {
+            background: var(--bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid var(--border);
+        }
+
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            gap: 12px;
+            align-items: start;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            border: 2px solid #86efac;
+            color: #065f46;
+        }
+
+        .alert-info {
+            background: #dbeafe;
+            border: 2px solid #93c5fd;
+            color: #1e40af;
+        }
+
+        .copy-all-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            padding: 18px 30px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: 0.3s;
+            z-index: 1000;
+        }
+
+        .copy-all-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.5);
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1e293b;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: none;
+            z-index: 2000;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .copy-all-btn {
+                bottom: 20px;
+                right: 20px;
+                padding: 15px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>
+                <span class="material-icons-round" style="font-size:40px;">android</span>
+                Android Integration
+            </h1>
+            <button class="btn btn-white" onclick="window.close()">
+                <span class="material-icons-round">close</span> Close
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- PROJECT DETAILS -->
+        <div class="card gradient-card">
+            <h2 style="margin:0 0 20px 0; font-size:24px;">📋 Your Project Configuration</h2>
+            <div class="info-box">
+                <div class="info-label">Base URL</div>
+                <div class="info-value">
+                    <span id="baseUrl">Loading...</span>
+                    <button class="btn btn-white" onclick="copyText(document.getElementById('baseUrl').textContent)">
+                        <span class="material-icons-round" style="font-size:18px;">content_copy</span>
+                    </button>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="info-box">
+                    <div class="info-label">Project ID</div>
+                    <div class="info-value" id="projectId">1</div>
+                </div>
+                <div class="info-box">
+                    <div class="info-label">API Key</div>
+                    <div class="info-value">maxclube_secret</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- QUICK COMPARISON -->
+        <div class="card">
+            <h3 style="margin:0 0 15px 0; color:var(--primary);">🔥 Firebase se Bhi Easy!</h3>
+            <div class="feature-grid">
+                <div class="feature-box">
+                    <div class="feature-icon">✅</div>
+                    <h4>No Complex Setup</h4>
+                    <p style="font-size:13px; color:var(--text-sec); margin-top:5px;">Firebase ki tarah complex
+                        configuration nahi</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon">🚀</div>
+                    <h4>Instant Start</h4>
+                    <p style="font-size:13px; color:var(--text-sec); margin-top:5px;">3 steps mein ready!</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon">💰</div>
+                    <h4>Completely Free</h4>
+                    <p style="font-size:13px; color:var(--text-sec); margin-top:5px;">No limits, no billing</p>
+                </div>
+                <div class="feature-box">
+                    <div class="feature-icon">🔒</div>
+                    <h4>Full Control</h4>
+                    <p style="font-size:13px; color:var(--text-sec); margin-top:5px;">Apna khud ka server</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SETUP STEPS -->
+        <div class="card">
+            <h3 style="margin:0 0 20px 0; color:var(--primary);">🚀 3-Step Setup</h3>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div style="flex:1;">
+                    <h4 style="margin:0 0 8px 0;">Add Dependencies</h4>
+                    <p style="font-size:14px; color:var(--text-sec); margin-bottom:10px;">
+                        Apne <code>build.gradle (Module: app)</code> mein yeh add karein:
+                    </p>
+                    <div class="code-header">
+                        <span style="font-weight:600;">build.gradle</span>
+                        <button class="btn btn-primary" onclick="copyCode('deps')">
+                            <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                        </button>
+                    </div>
+                    <div class="code-block" id="deps">dependencies {
+                        implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+                        implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+                        implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+                        implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+                        }</div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div style="flex:1;">
+                    <h4 style="margin:0 0 8px 0;">Setup RetrofitClient</h4>
+                    <p style="font-size:14px; color:var(--text-sec); margin-bottom:10px;">
+                        Yeh code <strong>already configured</strong> hai aapke project ke liye!
+                    </p>
+                    <div class="code-header">
+                        <span style="font-weight:600;">RetrofitClient.kt</span>
+                        <button class="btn btn-primary" onclick="copyCode('retrofit')">
+                            <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                        </button>
+                    </div>
+                    <div class="code-block" id="retrofit"></div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div style="flex:1;">
+                    <h4 style="margin:0 0 8px 0;">Start Using!</h4>
+                    <p style="font-size:14px; color:var(--text-sec);">
+                        Bas! Ab aap data save aur retrieve kar sakte hain.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CODE EXAMPLES -->
+        <div class="card">
+            <h3 style="margin:0 0 20px 0; color:var(--primary);">💡 Usage Examples</h3>
+
+            <!-- SAVE DATA -->
+            <div style="margin-bottom:30px;">
+                <div class="code-header">
+                    <span style="font-weight:600;">💾 Save Data (ViewModel)</span>
+                    <button class="btn btn-primary" onclick="copyCode('saveExample')">
+                        <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                    </button>
+                </div>
+                <div class="code-block" id="saveExample">fun saveUserData(name: String, email: String) {
+                    viewModelScope.launch {
+                    try {
+                    val userData = mapOf(
+                    "name" to name,
+                    "email" to email,
+                    "timestamp" to System.currentTimeMillis()
+                    )
+
+                    val response = RetrofitClient.api.saveData(
+                    SaveRequest(
+                    action = "save",
+                    key = RetrofitClient.API_KEY,
+                    pid = RetrofitClient.PROJECT_ID,
+                    collection = "users",
+                    data = userData
+                    )
+                    )
+
+                    if (response.isSuccessful) {
+                    Log.d("UltraBase", "✅ Data saved successfully!")
+                    }
+                    } catch (e: Exception) {
+                    Log.e("UltraBase", "❌ Error: ${e.message}")
+                    }
+                    }
+                    }</div>
+            </div>
+
+            <!-- GET DATA -->
+            <div style="margin-bottom:30px;">
+                <div class="code-header">
+                    <span style="font-weight:600;">📥 Get Data (ViewModel)</span>
+                    <button class="btn btn-primary" onclick="copyCode('getExample')">
+                        <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                    </button>
+                </div>
+                <div class="code-block" id="getExample">fun getUserData() {
+                    viewModelScope.launch {
+                    try {
+                    val response = RetrofitClient.api.getData(
+                    action = "get",
+                    key = RetrofitClient.API_KEY,
+                    projectId = RetrofitClient.PROJECT_ID,
+                    collection = "users"
+                    )
+
+                    if (response.isSuccessful) {
+                    val data = response.body()?.get(0)?.data
+                    val name = data?.get("name") as? String
+                    val email = data?.get("email") as? String
+                    Log.d("UltraBase", "✅ User: $name, Email: $email")
+                    }
+                    } catch (e: Exception) {
+                    Log.e("UltraBase", "❌ Error: ${e.message}")
+                    }
+                    }
+                    }</div>
+            </div>
+
+            <!-- REAL-TIME CHAT EXAMPLE -->
+            <div>
+                <div class="code-header">
+                    <span style="font-weight:600;">💬 Chat App Example</span>
+                    <button class="btn btn-primary" onclick="copyCode('chatExample')">
+                        <span class="material-icons-round" style="font-size:16px;">content_copy</span> Copy
+                    </button>
+                </div>
+                <div class="code-block" id="chatExample">// Message data class
+                    data class Message(
+                    val sender: String,
+                    val text: String,
+                    val timestamp: Long
+                    )
+
+                    // Send message
+                    fun sendMessage(sender: String, text: String) {
+                    viewModelScope.launch {
+                    val message = Message(
+                    sender = sender,
+                    text = text,
+                    timestamp = System.currentTimeMillis()
+                    )
+
+                    RetrofitClient.api.saveData(
+                    SaveRequest(
+                    action = "save",
+                    key = RetrofitClient.API_KEY,
+                    pid = RetrofitClient.PROJECT_ID,
+                    collection = "messages",
+                    data = message
+                    )
+                    )
+                    }
+                    }</div>
+            </div>
+        </div>
+
+        <!-- HELP -->
+        <div class="alert alert-success">
+            <span class="material-icons-round" style="font-size:28px;">help_outline</span>
+            <div>
+                <h4 style="margin:0 0 5px 0;">Need More Help?</h4>
+                <p style="margin:0; font-size:14px;">
+                    Complete documentation with API interface, data classes, and advanced examples:
+                    <a href="docs.html" target="_blank" style="color:#065f46; font-weight:700;">View Documentation</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="alert alert-info">
+            <span class="material-icons-round" style="font-size:28px;">smart_toy</span>
+            <div>
+                <h4 style="margin:0 0 5px 0;">Using AI Assistant?</h4>
+                <p style="margin:0; font-size:14px;">
+                    Click the <strong>"Copy All for AI"</strong> button below to copy all details.
+                    Paste in ChatGPT, Claude, or any AI to get instant help!
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLOATING COPY ALL BUTTON -->
+    <button class="copy-all-btn" onclick="copyAllForAI()">
+        <span class="material-icons-round" style="font-size:24px;">smart_toy</span>
+        Copy All for AI
+    </button>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // Get URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const PID = params.get('pid') || '1';
+        const KEY = 'maxclube_secret';
+
+        // Update UI with project details
+        document.getElementById('projectId').textContent = PID;
+
+        // Get base URL
+        const currentUrl = window.location.origin + window.location.pathname.replace('android.html', '');
+        document.getElementById('baseUrl').textContent = currentUrl;
+
+        // Generate Retrofit code
+        const retrofitCode = `import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.Response
+import retrofit2.http.*
+
+// Data Classes
+data class SaveRequest(
+    val action: String = "save",
+    val key: String,
+    val pid: Int,
+    val collection: String,
+    val data: Any
+)
+
+data class SaveResponse(
+    val status: String,
+    val id: Int
+)
+
+data class DataResponse(
+    val db_id: Int,
+    val data: Map<String, Any>
+)
+
+// API Interface
+interface UltraBaseAPI {
+    @POST("api.php")
+    suspend fun saveData(@Body request: SaveRequest): Response<SaveResponse>
+    
+    @GET("api.php")
+    suspend fun getData(
+        @Query("action") action: String = "get",
+        @Query("key") key: String,
+        @Query("pid") projectId: Int,
+        @Query("collection") collection: String
+    ): Response<List<DataResponse>>
+}
+
+// Retrofit Client
+object RetrofitClient {
+    private const val BASE_URL = "${currentUrl}"
+    const val API_KEY = "${KEY}"
+    const val PROJECT_ID = ${PID}
+    
+    val api: UltraBaseAPI by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(UltraBaseAPI::class.java)
+    }
+}`;
+
+        document.getElementById('retrofit').textContent = retrofitCode;
+
+        function copyCode(id) {
+            const code = document.getElementById(id).textContent;
+            copyText(code);
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Copied to clipboard!');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function copyAllForAI() {
+            const allDetails = `
+# UltraBase Android Integration Details
+
+## Project Configuration
+- **Base URL:** ${currentUrl}
+- **Project ID:** ${PID}
+- **API Key:** ${KEY}
+
+## Dependencies (build.gradle)
+\`\`\`gradle
+dependencies {
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2'
+}
+\`\`\`
+
+## RetrofitClient.kt (Complete Setup)
+\`\`\`kotlin
+${retrofitCode}
+\`\`\`
+
+## Save Data Example
+\`\`\`kotlin
+${document.getElementById('saveExample').textContent}
+\`\`\`
+
+## Get Data Example
+\`\`\`kotlin
+${document.getElementById('getExample').textContent}
+\`\`\`
+
+## Chat App Example
+\`\`\`kotlin
+${document.getElementById('chatExample').textContent}
+\`\`\`
+
+## Additional Information
+- This is a Firebase-like backend service
+- No complex setup required
+- Completely free with no limits
+- Full control over your data
+- RESTful API with JSON responses
+
+## Need Help?
+Ask your AI assistant: "Help me integrate this UltraBase backend in my Android app"
+`;
+
+            copyText(allDetails);
+            showToast('🤖 All details copied! Paste in your AI assistant.');
+        }
+    </script>
+</body>
+
+</html>
