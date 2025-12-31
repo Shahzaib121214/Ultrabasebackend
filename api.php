@@ -28,36 +28,30 @@ register_shutdown_function(function() {
 });
 
 // ==================== RAILWAY DATABASE CONFIGURATION ====================
-// Connection: mysql://root:dGIXnHczcIeccCrrLjImfaiVjEaLRMip@tramway.proxy.rlwy.net:43439/railway
+// FIX: Humne 'Internal' ki jagah 'Public' address use kiya hai taake yeh 
+// kahin se bhi connect ho sake (Localhost ya Railway).
 
-$host = 'mysql.railway.internal'; // Yahan sahi host daalo
+$host = 'tramway.proxy.rlwy.net'; // Public Host (Changed from mysql.railway.internal)
 $user = 'root';
-$pass = 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip'; // Yahan sahi password daalo (Last wala check karo)
+$pass = 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip'; 
 $db   = 'railway';
-$port = 3306;
+$port = 43439; // Public Port (Changed from 3306)
 
-
-// Optional: Use environment variables (set in Railway dashboard for security)
-// $host = getenv('DB_HOST') ?: 'tramway.proxy.rlwy.net';
-// $user = getenv('DB_USER') ?: 'root';
-// $pass = getenv('DB_PASS') ?: 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip';
-// $db   = getenv('DB_NAME') ?: 'railway';
-// $port = getenv('DB_PORT') ?: 43439;
 // ========================================================================
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
 try {
   // Create Connection (with port support for Railway)
-$conn = new mysqli($host, $user, $pass, $db, $port);
-    $conn->set_charset("utf8mb4");
+  $conn = new mysqli($host, $user, $pass, $db, $port);
+  $conn->set_charset("utf8mb4");
 } catch (Exception $e) {
-    jsonError("DB Connect Failed: " . $e->getMessage());
+    // Agar connect fail ho jaye to clear error dikhao
+    jsonError("DB Connect Failed: " . $e->getMessage() . " (Make sure you are using the PUBLIC Railway URL if running locally)");
 }
 
 // 3. AUTO-SETUP & REPAIR TABLES
 // Yeh check karega ke agar purani table hai to usay naye code ke liye update karde
-// 3. AUTO-SETUP TABLES (if not exist)
 try {
     // Projects table
     $conn->query("CREATE TABLE IF NOT EXISTS `projects` (
@@ -196,7 +190,7 @@ if ($action === 'db_health_check') {
             "connected" => true,
             "database" => $db,
             "host" => $host,
-            "environment" => $environment,
+            "environment" => "Public/Hybrid",
             "tables" => [],
             "all_tables_exist" => true,
             "missing_tables" => []
