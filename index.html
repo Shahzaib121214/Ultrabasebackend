@@ -281,6 +281,14 @@
             UltraBase Hub
         </div>
         <div style="display:flex; align-items:center; gap:15px;">
+            <!-- Database Status Indicator -->
+            <div id="dbStatus"
+                style="display:flex; align-items:center; gap:8px; padding:8px 14px; border-radius:10px; background:var(--bg); border:1px solid var(--border); font-size:13px; font-weight:600; cursor:pointer;"
+                onclick="showDatabaseInfo()">
+                <span class="material-icons-round" id="dbStatusIcon"
+                    style="font-size:18px; color:#94a3b8;">cloud_off</span>
+                <span id="dbStatusText">Checking...</span>
+            </div>
             <button class="btn-sec" onclick="setupDatabase()" id="setupDbBtn"
                 style="display:none; background:#f59e0b; color:white;">
                 <span class="material-icons-round" style="font-size:18px;">build</span> Setup Database
@@ -447,6 +455,8 @@
                 if (data.status === 'success') {
                     alert('✅ ' + data.message);
                     btn.style.display = 'none';
+                    // Refresh health check
+                    await checkDatabaseHealth();
                     location.reload();
                 } else {
                     alert('❌ ' + data.message);
@@ -474,9 +484,137 @@
 
         window.onload = function () {
             checkSession();
+            checkDatabaseHealth(); // Check database first
             loadProjects();
-            checkDatabaseSetup();
         };
+
+        // Global variable to store health data
+        let dbHealthData = null;
+
+        async function checkDatabaseHealth() {
+            try {
+                const res = await fetch(`${API}?action=db_health_check&key=${KEY}`);
+                const data = await res.json();
+                dbHealthData = data;
+
+                const statusDiv = document.getElementById('dbStatus');
+                const statusIcon = document.getElementById('dbStatusIcon');
+                const statusText = document.getElementById('dbStatusText');
+                const setupBtn = document.getElementById('setupDbBtn');
+
+                if (data.connected && data.all_tables_exist) {
+                    // All good!
+                    statusDiv.style.borderColor = '#10b981';
+                    statusDiv.style.background = 'rgba(16, 185, 129, 0.1)';
+                    statusIcon.style.color = '#10b981';
+                    statusIcon.textContent = 'check_circle';
+                    statusText.textContent = `Connected (${data.environment})`;
+                    statusText.style.color = '#10b981';
+                    setupBtn.style.display = 'none';
+                } else if (data.connected && !data.all_tables_exist) {
+                    // Connected but tables missing
+                    statusDiv.style.borderColor = '#f59e0b';
+                    statusDiv.style.background = 'rgba(245, 158, 11, 0.1)';
+                    statusIcon.style.color = '#f59e0b';
+                    statusIcon.textContent = 'warning';
+                    statusText.textContent = `Setup Required`;
+                    statusText.style.color = '#f59e0b';
+                    setupBtn.style.display = 'flex';
+                } else {
+                    // Not connected
+                    statusDiv.style.borderColor = '#ef4444';
+                    statusDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+                    statusIcon.style.color = '#ef4444';
+                    statusIcon.textContent = 'error';
+                    statusText.textContent = 'Not Connected';
+                    statusText.style.color = '#ef4444';
+                }
+            } catch (e) {
+                const statusDiv = document.getElementById('dbStatus');
+                const statusIcon = document.getElementById('dbStatusIcon');
+                const statusText = document.getElementById('dbStatusText');
+
+                statusDiv.style.borderColor = '#ef4444';
+                statusDiv.style.background = 'rgba(239, 68, 68, 0.1)';
+                statusIcon.style.color = '#ef4444';
+                statusIcon.textContent = 'error';
+                statusText.textContent = 'Connection Failed';
+                statusText.style.color = '#ef4444';
+            }
+        }
+
+        function showDatabaseInfo() {
+            if (!dbHealthData) {
+                alert('Database information not available');
+                return;
+            }
+
+            let tablesHtml = '';
+            if (dbHealthData.tables && dbHealthData.tables.length > 0) {
+                tablesHtml = dbHealthData.tables.map(table => {
+                    const icon = table.exists ? '✅' : '❌';
+                    const rowInfo = table.exists ? ` (${table.rows} rows)` : ' (Missing)';
+                    const color = table.exists ? '#10b981' : '#ef4444';
+                    return `<div style="padding:8px; margin:4px 0; background:var(--bg); border-radius:8px; display:flex; justify-content:space-between;">
+                        <span style="font-weight:600;">${icon} ${table.name}</span>
+                        <span style="color:${color}; font-size:13px;">${rowInfo}</span>
+                    </div>`;
+                }).join('');
+            }
+
+            const modalHtml = `
+                <div style="position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(8px); z-index:1000; display:flex; align-items:center; justify-content:center;" onclick="this.remove()">
+                    <div style="background:var(--surface); padding:32px; border-radius:20px; max-width:500px; width:90%; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);" onclick="event.stopPropagation()">
+                        <h2 style="margin:0 0 20px 0; display:flex; align-items:center; gap:12px;">
+                            <span class="material-icons-round" style="color:${dbHealthData.connected ? '#10b981' : '#ef4444'}">storage</span>
+                            Database Status
+                        </h2>
+                        
+                        <div style="background:var(--bg); padding:16px; border-radius:12px; margin-bottom:20px;">
+                            <div style="display:grid; grid-template-columns:120px 1fr; gap:12px; font-size:14px;">
+                                <strong>Status:</strong>
+                                <span style="color:${dbHealthData.connected ? '#10b981' : '#ef4444'}; font-weight:600;">
+                                    ${dbHealthData.connected ? '✅ Connected' : '❌ Not Connected'}
+                                </span>
+                                
+                                <strong>Environment:</strong>
+                                <span>${dbHealthData.environment || 'Unknown'}</span>
+                                
+                                <strong>Host:</strong>
+                                <span style="font-family:monospace; font-size:12px;">${dbHealthData.host || 'N/A'}</span>
+                                
+                                <strong>Database:</strong>
+                                <span style="font-family:monospace; font-size:12px;">${dbHealthData.database || 'N/A'}</span>
+                            </div>
+                        </div>
+
+                        <h3 style="font-size:16px; margin:20px 0 12px 0;">Database Tables</h3>
+                        <div style="max-height:300px; overflow-y:auto;">
+                            ${tablesHtml}
+                        </div>
+
+                        ${!dbHealthData.all_tables_exist ? `
+                            <div style="margin-top:20px; padding:16px; background:rgba(245,158,11,0.1); border:1px solid #f59e0b; border-radius:12px; color:#f59e0b;">
+                                <strong>⚠️ Setup Required</strong><br>
+                                <span style="font-size:13px;">Missing tables: ${dbHealthData.missing_tables.join(', ')}</span>
+                            </div>
+                        ` : ''}
+
+                        <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+                            ${!dbHealthData.all_tables_exist ? `
+                                <button class="btn" onclick="this.closest('div[style*=fixed]').remove(); setupDatabase();" style="background:#f59e0b;">
+                                    <span class="material-icons-round">build</span> Setup Now
+                                </button>
+                            ` : ''}
+                            <button class="btn-sec" onclick="this.closest('div[style*=fixed]').remove()">Close</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
     </script>
 </body>
 

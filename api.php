@@ -210,6 +210,54 @@ if ($action === 'check_tables') {
     exit;
 }
 
+// NEW: Comprehensive Database Health Check
+if ($action === 'db_health_check') {
+    try {
+        $health = [
+            "status" => "success",
+            "connected" => true,
+            "database" => $db,
+            "host" => $host,
+            "environment" => $environment,
+            "tables" => [],
+            "all_tables_exist" => true,
+            "missing_tables" => []
+        ];
+        
+        // Required tables
+        $requiredTables = ['users', 'projects', 'universal_data', 'analytics', 'api_keys', 'activity_logs', 'backups', 'webhooks', 'security_rules'];
+        
+        // Check each table
+        foreach ($requiredTables as $table) {
+            $result = $conn->query("SHOW TABLES LIKE '$table'");
+            $exists = ($result && $result->num_rows > 0);
+            
+            $tableInfo = ["name" => $table, "exists" => $exists];
+            
+            if ($exists) {
+                // Get row count
+                $countResult = $conn->query("SELECT COUNT(*) as count FROM `$table`");
+                $count = $countResult->fetch_assoc()['count'];
+                $tableInfo['rows'] = $count;
+            } else {
+                $health['all_tables_exist'] = false;
+                $health['missing_tables'][] = $table;
+            }
+            
+            $health['tables'][] = $tableInfo;
+        }
+        
+        echo json_encode($health);
+    } catch (Exception $e) {
+        echo json_encode([
+            "status" => "error",
+            "connected" => false,
+            "message" => $e->getMessage()
+        ]);
+    }
+    exit;
+}
+
 if ($action === 'setup_tables') {
     try {
         $tables = [];
