@@ -27,45 +27,23 @@ register_shutdown_function(function() {
     }
 });
 
-// ==================== DATABASE CONFIGURATION ====================
-// Choose your environment: 'local', 'infinityfree', or 'railway'
-// Set DB_ENV environment variable or change $environment below
+// ==================== RAILWAY DATABASE CONFIGURATION ====================
+// Connection: mysql://root:dGIXnHczcIeccCrrLjImfaiVjEaLRMip@tramway.proxy.rlwy.net:43439/railway
 
-$environment = getenv('DB_ENV') ?: 'railway'; // Default: railway (PRODUCTION)
+$host = 'tramway.proxy.rlwy.net';
+$user = 'root';
+$pass = 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip';
+$db   = 'railway';
+$port = 43439;
+$environment = 'railway';
 
-// Configuration for different environments
-$configs = [
-    'local' => [
-        'host' => 'localhost',
-        'user' => 'root',
-        'pass' => '',
-        'db'   => 'ultrabase',
-        'port' => 3306
-    ],
-    'infinityfree' => [
-        'host' => 'sql110.infinityfree.com',
-        'user' => 'if0_40793018',
-        'pass' => 'z1d5FL69C8Eh',
-        'db'   => 'if0_40793018_ultrabase',
-        'port' => 3306
-    ],
-    'railway' => [
-        'host' => getenv('DB_HOST') ?: 'tramway.proxy.rlwy.net',
-        'user' => getenv('DB_USER') ?: 'root',
-        'pass' => getenv('DB_PASS') ?: 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip',
-        'db'   => getenv('DB_NAME') ?: 'railway',
-        'port' => getenv('DB_PORT') ?: 43439
-    ]
-];
-
-// Get configuration for current environment
-$config = $configs[$environment];
-$host = $config['host'];
-$user = $config['user'];
-$pass = $config['pass'];
-$db   = $config['db'];
-$port = $config['port'];
-// ================================================================
+// Optional: Use environment variables (set in Railway dashboard for security)
+// $host = getenv('DB_HOST') ?: 'tramway.proxy.rlwy.net';
+// $user = getenv('DB_USER') ?: 'root';
+// $pass = getenv('DB_PASS') ?: 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip';
+// $db   = getenv('DB_NAME') ?: 'railway';
+// $port = getenv('DB_PORT') ?: 43439;
+// ========================================================================
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
