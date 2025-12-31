@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug - UltraBase</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #60a5fa;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .section {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            color: #818cf8;
+            font-size: 18px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 15px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #0f172a;
+            border-radius: 4px;
+        }
+
+        .label {
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .value {
+            color: #e2e8f0;
+            word-break: break-all;
+        }
+
+        .success {
+            color: #10b981;
+        }
+
+        .error {
+            color: #ef4444;
+        }
+
+        .warning {
+            color: #f59e0b;
+        }
+
+        pre {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+            font-size: 13px;
+            color: #e2e8f0;
+        }
+
+        .btn {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-badge.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .loading {
+            color: #94a3b8;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔍 UltraBase API Debug Tool</h1>
+
+        <!-- Configuration Section -->
+        <div class="section">
+            <h2>📋 Current Configuration</h2>
+            <div id="configInfo">
+                <div class="loading">Loading configuration...</div>
+            </div>
+        </div>
+
+        <!-- Connection Test Section -->
+        <div class="section">
+            <h2>🔌 Database Connection Test</h2>
+            <button class="btn" onclick="testConnection()">Test Connection</button>
+            <button class="btn" onclick="testHealthCheck()">Test Health Check</button>
+            <div id="connectionResult" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Raw Response Section -->
+        <div class="section">
+            <h2>📡 Raw API Response</h2>
+            <pre id="rawResponse">Click "Test Health Check" to see response...</pre>
+        </div>
+
+        <!-- Error Details Section -->
+        <div class="section">
+            <h2>⚠️ Error Details (if any)</h2>
+            <pre id="errorDetails">No errors yet...</pre>
+        </div>
+
+        <!-- Quick Fixes Section -->
+        <div class="section">
+            <h2>🔧 Quick Actions</h2>
+            <button class="btn" onclick="setupTables()">Setup Database Tables</button>
+            <button class="btn" onclick="checkTables()">Check Tables</button>
+            <div id="actionResult" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'api.php';
+        const KEY = 'maxclube_secret';
+
+        // Load configuration on page load
+        window.onload = function () {
+            loadConfig();
+        };
+
+        function loadConfig() {
+            const configHtml = `
+                <div class="info-row">
+                    <div class="label">API URL:</div>
+                    <div class="value">${window.location.origin}/${API_URL}</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Secret Key:</div>
+                    <div class="value">${KEY}</div>
+                </div>
+                <div class="info-row">
+                    <div class="label">Current URL:</div>
+                    <div class="value">${window.location.href}</div>
+                </div>
+            `;
+            document.getElementById('configInfo').innerHTML = configHtml;
+        }
+
+        async function testConnection() {
+            const resultDiv = document.getElementById('connectionResult');
+            resultDiv.innerHTML = '<div class="loading">Testing connection...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}?action=db_health_check&key=${KEY}`);
+
+                // Get raw text first
+                const text = await response.text();
+                document.getElementById('rawResponse').textContent = text;
+
+                // Try to parse as JSON
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    resultDiv.innerHTML = `
+                        <div class="error">❌ Invalid JSON Response</div>
+                        <div style="margin-top: 10px;">
+                            <strong>Error:</strong> ${e.message}<br>
+                            <strong>Response:</strong> ${text.substring(0, 200)}...
+                        </div>
+                    `;
+                    document.getElementById('errorDetails').textContent =
+                        `JSON Parse Error: ${e.message}\n\nRaw Response:\n${text}`;
+                    return;
+                }
+
+                // Display parsed result
+                if (data.connected) {
+                    resultDiv.innerHTML = `
+                        <span class="status-badge success">✅ Connected</span>
+                        <div class="info-row">
+                            <div class="label">Environment:</div>
+                            <div class="value success">${data.environment || 'Unknown'}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="label">Host:</div>
+                            <div class="value">${data.host || 'N/A'}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="label">Database:</div>
+                            <div class="value">${data.database || 'N/A'}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="label">Tables Status:</div>
+                            <div class="value ${data.all_tables_exist ? 'success' : 'warning'}">
+                                ${data.all_tables_exist ? '✅ All tables exist' : '⚠️ Some tables missing'}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <span class="status-badge error">❌ Not Connected</span>
+                        <div style="margin-top: 10px;">
+                            <strong>Error:</strong> ${data.message || 'Unknown error'}
+                        </div>
+                    `;
+                    document.getElementById('errorDetails').textContent =
+                        `Connection Failed:\n${data.message || 'Unknown error'}\n\nFull Response:\n${JSON.stringify(data, null, 2)}`;
+                }
+
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <span class="status-badge error">❌ Request Failed</span>
+                    <div style="margin-top: 10px;">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+                document.getElementById('errorDetails').textContent =
+                    `Fetch Error: ${error.message}\n\nStack:\n${error.stack}`;
+            }
+        }
+
+        async function testHealthCheck() {
+            await testConnection();
+        }
+
+        async function setupTables() {
+            const resultDiv = document.getElementById('actionResult');
+            resultDiv.innerHTML = '<div class="loading">Creating tables...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}?action=setup_tables&key=${KEY}`);
+                const text = await response.text();
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    resultDiv.innerHTML = `<div class="error">❌ Invalid JSON: ${e.message}</div>`;
+                    return;
+                }
+
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = `<div class="success">✅ ${data.message}</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="error">❌ ${data.message}</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        async function checkTables() {
+            const resultDiv = document.getElementById('actionResult');
+            resultDiv.innerHTML = '<div class="loading">Checking tables...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}?action=check_tables&key=${KEY}`);
+                const text = await response.text();
+
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (e) {
+                    resultDiv.innerHTML = `<div class="error">❌ Invalid JSON: ${e.message}</div>`;
+                    return;
+                }
+
+                if (data.tables_exist) {
+                    resultDiv.innerHTML = `<div class="success">✅ Tables exist</div>`;
+                } else {
+                    resultDiv.innerHTML = `<div class="warning">⚠️ Tables do not exist</div>`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+
+</html>
