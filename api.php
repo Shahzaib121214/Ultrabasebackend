@@ -50,9 +50,9 @@ $configs = [
         'port' => 3306
     ],
     'railway' => [
-        'host' => getenv('DB_HOST') ?: 'tram4ay.proxy.rlwy.net',
+        'host' => getenv('DB_HOST') ?: 'tramway.proxy.rlwy.net',
         'user' => getenv('DB_USER') ?: 'root',
-        'pass' => getenv('DB_PASS') ?: 'dGIXnHczcIeccCrrLjImfaiVjEaLRM1p',
+        'pass' => getenv('DB_PASS') ?: 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip',
         'db'   => getenv('DB_NAME') ?: 'railway',
         'port' => getenv('DB_PORT') ?: 43439
     ]
