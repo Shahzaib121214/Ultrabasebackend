@@ -27,11 +27,11 @@ register_shutdown_function(function() {
     }
 });
 
-// 2.// ==================== DATABASE CONFIGURATION ====================
+// ==================== DATABASE CONFIGURATION ====================
 // Choose your environment: 'local', 'infinityfree', or 'railway'
 // Set DB_ENV environment variable or change $environment below
 
-$environment = getenv('DB_ENV') ?: 'infinityfree'; // Default: infinityfree
+$environment = getenv('DB_ENV') ?: 'railway'; // Default: railway (PRODUCTION)
 
 // Configuration for different environments
 $configs = [
@@ -79,88 +79,102 @@ $conn = new mysqli($host, $user, $pass, $db, $port);
 
 // 3. AUTO-SETUP & REPAIR TABLES
 // Yeh check karega ke agar purani table hai to usay naye code ke liye update karde
-$tables = [
-    "CREATE TABLE IF NOT EXISTS `users` (
+// 3. AUTO-SETUP TABLES (if not exist)
+try {
+    // Projects table
+    $conn->query("CREATE TABLE IF NOT EXISTS `projects` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `username` VARCHAR(50) UNIQUE NOT NULL,
-        `email` VARCHAR(100) UNIQUE NOT NULL,
-        `password` VARCHAR(255) NOT NULL,
-        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    )",
-    "CREATE TABLE IF NOT EXISTS `projects` (
-        `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `user_id` INT DEFAULT NULL,
-        `name` VARCHAR(50) NOT NULL,
+        `name` VARCHAR(100) NOT NULL,
         `api_key` VARCHAR(64) NOT NULL,
+        `user_id` INT DEFAULT NULL,
         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         INDEX (`user_id`)
-    )",
-    "CREATE TABLE IF NOT EXISTS `universal_data` (
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // Universal data table
+    $conn->query("CREATE TABLE IF NOT EXISTS `universal_data` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
         `project_id` INT DEFAULT 0,
         `collection` VARCHAR(100) NOT NULL,
         `json_data` LONGTEXT NOT NULL,
         `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX (`project_id`, `collection`)
-    )",
-    "CREATE TABLE IF NOT EXISTS `analytics` (
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // Analytics table
+    $conn->query("CREATE TABLE IF NOT EXISTS `analytics` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
         `project_id` INT DEFAULT 0,
-        `date` DATE,
+        `date` DATE NOT NULL,
         `reads` INT DEFAULT 0,
         `writes` INT DEFAULT 0,
-        UNIQUE KEY `unique_stat` (`project_id`, `date`)
-    )",
-    "CREATE TABLE IF NOT EXISTS `api_keys` (
+        UNIQUE KEY `unique_project_date` (`project_id`, `date`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // Users table
+    $conn->query("CREATE TABLE IF NOT EXISTS `users` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `username` VARCHAR(50) NOT NULL UNIQUE,
+        `email` VARCHAR(100) NOT NULL UNIQUE,
+        `password` VARCHAR(255) NOT NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // API Keys table
+    $conn->query("CREATE TABLE IF NOT EXISTS `api_keys` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
         `project_id` INT NOT NULL,
         `key_name` VARCHAR(100) NOT NULL,
         `api_key` VARCHAR(64) NOT NULL,
-        `permissions` VARCHAR(20) DEFAULT 'read,write',
-        `is_active` TINYINT(1) DEFAULT 1,
+        `permissions` TEXT,
         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        INDEX (`project_id`),
-        UNIQUE KEY (`api_key`)
-    )",
-    "CREATE TABLE IF NOT EXISTS `activity_logs` (
+        INDEX (`project_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // Activity logs table
+    $conn->query("CREATE TABLE IF NOT EXISTS `activity_logs` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
         `project_id` INT NOT NULL,
         `action` VARCHAR(50) NOT NULL,
         `collection` VARCHAR(100),
         `details` TEXT,
-        `ip_address` VARCHAR(45),
-        `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        INDEX (`project_id`, `timestamp`)
-    )",
-    "CREATE TABLE IF NOT EXISTS `backups` (
-        `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `project_id` INT NOT NULL,
-        `backup_name` VARCHAR(100),
-        `backup_data` LONGTEXT NOT NULL,
-        `size_kb` DECIMAL(10,2),
         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        INDEX (`project_id`)
-    )",
-    "CREATE TABLE IF NOT EXISTS `webhooks` (
-        `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `project_id` INT NOT NULL,
-        `webhook_url` VARCHAR(255) NOT NULL,
-        `events` VARCHAR(100) DEFAULT 'create,update,delete',
-        `is_active` TINYINT(1) DEFAULT 1,
-        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        INDEX (`project_id`)
-    )",
-    "CREATE TABLE IF NOT EXISTS `security_rules` (
-        `id` INT AUTO_INCREMENT PRIMARY KEY,
-        `project_id` INT NOT NULL,
-        `rules_json` TEXT,
-        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        UNIQUE KEY (`project_id`)
-    )"
-];
+        INDEX (`project_id`, `created_at`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
 
-foreach ($tables as $sql) {
-    $conn->query($sql);
+    // Backups table
+    $conn->query("CREATE TABLE IF NOT EXISTS `backups` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `project_id` INT NOT NULL,
+        `backup_name` VARCHAR(100) NOT NULL,
+        `backup_data` LONGTEXT NOT NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX (`project_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // Webhooks table
+    $conn->query("CREATE TABLE IF NOT EXISTS `webhooks` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `project_id` INT NOT NULL,
+        `url` VARCHAR(255) NOT NULL,
+        `events` TEXT,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX (`project_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+    // Security rules table
+    $conn->query("CREATE TABLE IF NOT EXISTS `security_rules` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `project_id` INT NOT NULL,
+        `collection` VARCHAR(100) NOT NULL,
+        `rules` TEXT NOT NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX (`project_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+} catch (Exception $e) {
+    // Tables creation failed - log but continue
+    error_log("Table creation warning: " . $e->getMessage());
 }
 
 // ** IMPORTANT FIX **: Add user_id to projects table if it doesn't exist
