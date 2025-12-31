@@ -30,12 +30,12 @@ register_shutdown_function(function() {
 // ==================== RAILWAY DATABASE CONFIGURATION ====================
 // Connection: mysql://root:dGIXnHczcIeccCrrLjImfaiVjEaLRMip@tramway.proxy.rlwy.net:43439/railway
 
-$host = 'tramway.proxy.rlwy.net';
+$host = 'mysql.railway.internal'; // Yahan sahi host daalo
 $user = 'root';
-$pass = 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip';
+$pass = 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip'; // Yahan sahi password daalo (Last wala check karo)
 $db   = 'railway';
-$port = 43439;
-$environment = 'railway';
+$port = 3306;
+
 
 // Optional: Use environment variables (set in Railway dashboard for security)
 // $host = getenv('DB_HOST') ?: 'tramway.proxy.rlwy.net';

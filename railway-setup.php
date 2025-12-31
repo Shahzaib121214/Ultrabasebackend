@@ -9,11 +9,12 @@ echo "<h1>Railway Database Setup</h1>";
 echo "<pre>";
 
 // Railway MySQL Configuration
-$host = "tram4ay.proxy.rlwy.net";
-$port = 43439;
-$user = "root";
-$pass = "dGIXnHczcIeccCrrLjImfaiVjEaLRM1p";
-$db = "railway";
+$host = 'mysql.railway.internal'; // Yahan sahi host daalo
+$user = 'root';
+$pass = 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip'; // Yahan sahi password daalo (Last wala check karo)
+$db   = 'railway';
+$port = 3306;
+
 
 echo "Connecting to Railway MySQL...\n";
 echo "Host: $host:$port\n";

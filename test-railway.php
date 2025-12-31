@@ -2,11 +2,12 @@
 // Simple test to check if Railway credentials work
 header("Content-Type: application/json");
 
-$host = 'tramway.proxy.rlwy.net';
+$host = 'mysql.railway.internal'; // Yahan sahi host daalo
 $user = 'root';
-$pass = 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip';
-$db = 'railway';
-$port = 43439;
+$pass = 'dGIXnHczcIeccCrrLjImfaiVjEaLRMip'; // Yahan sahi password daalo (Last wala check karo)
+$db   = 'railway';
+$port = 3306;
+
 
 try {
     $conn = new mysqli($host, $user, $pass, $db, $port);
