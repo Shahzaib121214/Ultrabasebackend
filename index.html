@@ -281,6 +281,10 @@
             UltraBase Hub
         </div>
         <div style="display:flex; align-items:center; gap:15px;">
+            <button class="btn-sec" onclick="setupDatabase()" id="setupDbBtn"
+                style="display:none; background:#f59e0b; color:white;">
+                <span class="material-icons-round" style="font-size:18px;">build</span> Setup Database
+            </button>
             <a href="docs.html" class="btn-sec"
                 style="text-decoration:none; display:flex; align-items:center; gap:8px;">
                 <span class="material-icons-round" style="font-size:18px;">description</span> Docs
@@ -429,6 +433,50 @@
             await fetch(`${API}?action=delete_project&key=${KEY}&id=${id}`);
             loadProjects();
         }
+
+        async function setupDatabase() {
+            const btn = document.getElementById('setupDbBtn');
+            if (!confirm('Create all database tables?\n\nThis will set up:\n- Users\n- Projects\n- Data Storage\n- Analytics\n- And more...')) return;
+
+            btn.innerHTML = '<span class="material-icons-round">hourglass_empty</span> Creating...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(`${API}?action=setup_tables&key=${KEY}`);
+                const data = await res.json();
+                if (data.status === 'success') {
+                    alert('✅ ' + data.message);
+                    btn.style.display = 'none';
+                    location.reload();
+                } else {
+                    alert('❌ ' + data.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '<span class="material-icons-round">build</span> Setup Database';
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+                btn.disabled = false;
+                btn.innerHTML = '<span class="material-icons-round">build</span> Setup Database';
+            }
+        }
+
+        async function checkDatabaseSetup() {
+            try {
+                const res = await fetch(`${API}?action=check_tables&key=${KEY}`);
+                const data = await res.json();
+                if (!data.tables_exist) {
+                    document.getElementById('setupDbBtn').style.display = 'flex';
+                }
+            } catch (e) {
+                document.getElementById('setupDbBtn').style.display = 'flex';
+            }
+        }
+
+        window.onload = function () {
+            checkSession();
+            loadProjects();
+            checkDatabaseSetup();
+        };
     </script>
 </body>
 
